@@ -9,31 +9,27 @@ from __future__ import with_statement
 import Live
 
 from _Framework.ButtonElement import ButtonElement
+from _Framework.ButtonSliderElement import ButtonSliderElement
+from _Framework.ChannelStripComponent import release_control
 from _Framework.ControlSurface import ControlSurface
-from _Framework.SliderElement import SliderElement
 from _Framework.InputControlElement import MIDI_CC_TYPE
 from _Framework.MixerComponent import MixerComponent
+from _Framework.SliderElement import SliderElement
 from _Framework.TransportComponent import TransportComponent
-from _Framework.ChannelStripComponent import release_control
 
 class EnhancedMixerComponent(MixerComponent):
   def __init__(self, *a, **k):
     super(EnhancedMixerComponent, self).__init__(*a, **k)
-    self._crossfader_left_button = None
-    self._crossfader_right_button = None
+    self._secondary_crossfader_control = None
 
   def disconnect(self):
     super(EnhancedMixerComponent, self).disconnect()
-    release_control(self._crossfader_left_button)
-    release_control(self._crossfader_right_button)
-    self._crossfader_left_button = None
-    self._crossfader_right_button = None
+    release_control(self._secondary_crossfader_control)
+    self._secondary_crossfader_control = None
 
-  def set_crossfader_buttons(self, left, right):
-    release_control(self._crossfader_left_button)
-    release_control(self._crossfader_right_button)
-    self._crossfader_left_button = left
-    self._crossfader_right_button = right
+  def set_secondary_crossfader_control(self, control):
+    release_control(self._secondary_crossfader_control)
+    self._secondary_crossfader_control = control
     self.update()
 
   def update(self):
@@ -41,15 +37,11 @@ class EnhancedMixerComponent(MixerComponent):
     if self._allow_updates:
       master_track = self.song().master_track
       if self.is_enabled():
-        if self._crossfader_left_button != None:
-          self._crossfader_left_button.connect_to(
-                  master_track.mixer_device.crossfader)
-        if self._crossfader_right_button != None:
-          self._crossfader_right_button.connect_to(
+        if self._secondary_crossfader_control != None:
+          self._secondary_crossfader_control.connect_to(
                   master_track.mixer_device.crossfader)
       else:
-        release_control(self._crossfader_left_button)
-        release_control(self._crossfader_right_button)
+        release_control(self._secondary_crossfader_control)
     else:
       self._update_requests += 1
 
@@ -72,9 +64,10 @@ class PMIDIPD30Ctrl(ControlSurface):
   def _setup_mixer_control(self):
     self._mixer = EnhancedMixerComponent()
     self._mixer.set_crossfader_control(SliderElement(MIDI_CC_TYPE, 0, 9))
-    self._mixer.set_crossfader_buttons(
-            ButtonElement(True, MIDI_CC_TYPE, 0, 1),
-            ButtonElement(True, MIDI_CC_TYPE, 0, 2))
+    self._mixer.set_secondary_crossfader_control(ButtonSliderElement(
+           (ButtonElement(True, MIDI_CC_TYPE, 0, 1),
+           ButtonElement(True, MIDI_CC_TYPE, 0, 2))
+        ))
 
   def disconnect(self):
     ControlSurface.disconnect(self)
