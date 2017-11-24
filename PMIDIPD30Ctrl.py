@@ -1,9 +1,3 @@
-#-----------------------------------------------
-#                        
-#  Adapted from Keith McMillen's QuNexus.
-#                        
-#-----------------------------------------------
-
 from __future__ import with_statement
 
 import Live
@@ -40,6 +34,9 @@ class PMIDIPD30Ctrl(ControlSurface):
     self.__register_button(44, self.__record)
     self.__register_button(45, self.__start)
     self.__register_button(46, self.__stop)
+    self.__register_button(47, self.__jump_left)
+    self.__register_button(48, self.__jump_right)
+    self.__register_button(49, self.__toggle_cue)
 
   def __setup_mixer_control(self):
     self._mixer = MixerComponent()
@@ -61,4 +58,16 @@ class PMIDIPD30Ctrl(ControlSurface):
   def __record(self, value):
     if not value: return
     self.song().record_mode = not self.song().record_mode
+
+  def __jump_left(self, value):
+    if not value: return
+    self.song().jump_to_prev_cue()
+
+  def __jump_right(self, value):
+    if not value: return
+    self.song().jump_to_next_cue()
+
+  def __toggle_cue(self, value):
+    if not value: return
+    self.song().set_or_delete_cue()
 
