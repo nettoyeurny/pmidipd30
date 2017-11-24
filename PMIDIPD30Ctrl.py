@@ -10,41 +10,10 @@ import Live
 
 from _Framework.ButtonElement import ButtonElement
 from _Framework.ButtonSliderElement import ButtonSliderElement
-from _Framework.ControlElement import ControlElement
 from _Framework.ControlSurface import ControlSurface
 from _Framework.InputControlElement import MIDI_CC_TYPE
 from _Framework.MixerComponent import MixerComponent
 from _Framework.SliderElement import SliderElement
-from _Framework.SubjectSlot import SlotManager
-
-class TransportControl(ControlElement, SlotManager):
-
-  def __init__(self, song,
-      start_button = None, stop_button = None, record_button = None):
-    ControlElement.__init__(self)
-    self._song = song
-    self._slots = self.register_slot_manager()
-    if start_button:
-      self._slots.register_slot(start_button, self._start, 'value')
-    if stop_button:
-      self._slots.register_slot(stop_button, self._stop, 'value')
-    if record_button:
-      self._slots.register_slot(record_button, self._record, 'value')
-
-  def disconnect(self):
-    SliderElement.disconnect(self)
-
-  def _start(self, value):
-    if not value: return
-    self._song.start_playing()
-
-  def _stop(self, value):
-    if not value: return
-    self._song.stop_playing()
-
-  def _record(self, value):
-    if not value: return
-    self._song.record_mode = not self._song.record_mode
 
 
 class PMIDIPD30Ctrl(ControlSurface):
@@ -53,18 +22,26 @@ class PMIDIPD30Ctrl(ControlSurface):
   
   def __init__(self, c_instance):
     ControlSurface.__init__(self, c_instance)
+    self.__slots = self.register_slot_manager()
     with self.component_guard():
-      self._setup_transport_control()
-      self._setup_mixer_control()
+      self.__setup_transport_control()
+      self.__setup_mixer_control()
     self.log_message("Created PMIDIPD30Ctrl.")
 
-  def _setup_transport_control(self):
-    self._transport = TransportControl(self.song(),
-        ButtonElement(True, MIDI_CC_TYPE, 0, 45),
-        ButtonElement(True, MIDI_CC_TYPE, 0, 46),
-        ButtonElement(True, MIDI_CC_TYPE, 0, 44))
+  def disconnect(self):
+    ControlSurface.disconnect(self)
+    self.log_message("Closed PMIDIPD30Ctrl.")
 
-  def _setup_mixer_control(self):
+  def __register_button(self, ctrl, callback):
+    self.__slots.register_slot(
+        ButtonElement(True, MIDI_CC_TYPE, 0, ctrl), callback, 'value')
+
+  def __setup_transport_control(self):
+    self.__register_button(44, self.__record)
+    self.__register_button(45, self.__start)
+    self.__register_button(46, self.__stop)
+
+  def __setup_mixer_control(self):
     self._mixer = MixerComponent()
     self._mixer.set_crossfader_control(SliderElement(MIDI_CC_TYPE, 0, 9))
     self._secondary_mixer = MixerComponent()
@@ -73,6 +50,15 @@ class PMIDIPD30Ctrl(ControlSurface):
         ButtonElement(True, MIDI_CC_TYPE, 0, 2))
     ))
 
-  def disconnect(self):
-    ControlSurface.disconnect(self)
-    self.log_message("Closed PMIDIPD30Ctrl.")
+  def __start(self, value):
+    if not value: return
+    self.song().start_playing()
+
+  def __stop(self, value):
+    if not value: return
+    self.song().stop_playing()
+
+  def __record(self, value):
+    if not value: return
+    self.song().record_mode = not self.song().record_mode
+
