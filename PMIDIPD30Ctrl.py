@@ -10,17 +10,18 @@ import Live
 
 from _Framework.ButtonElement import ButtonElement
 from _Framework.ButtonSliderElement import ButtonSliderElement
+from _Framework.ControlElement import ControlElement
 from _Framework.ControlSurface import ControlSurface
-from _Framework.InputControlElement import MIDI_CC_TYPE, MIDI_INVALID_TYPE
+from _Framework.InputControlElement import MIDI_CC_TYPE
 from _Framework.MixerComponent import MixerComponent
 from _Framework.SliderElement import SliderElement
 from _Framework.SubjectSlot import SlotManager
 
-class TransportControl(SliderElement, SlotManager):
+class TransportControl(ControlElement, SlotManager):
 
   def __init__(self, song,
       start_button = None, stop_button = None, record_button = None):
-    SliderElement.__init__(self, MIDI_INVALID_TYPE, 0, 0)
+    ControlElement.__init__(self)
     self._song = song
     self._slots = self.register_slot_manager()
     if start_button:
