@@ -1,16 +1,15 @@
 from __future__ import with_statement
 
-from _Framework.ButtonElement import ButtonElement
-from _Framework.ControlSurface import ControlSurface
-from _Framework.InputControlElement import MIDI_CC_TYPE
-from _Framework.SliderElement import SliderElement
+from ableton.v2.control_surface.control_surface import SimpleControlSurface
+from ableton.v2.control_surface.elements.button import ButtonElement
+from ableton.v2.control_surface.elements.slider import SliderElement
+from ableton.v2.control_surface.input_control_element import MIDI_CC_TYPE
 
 
-class SimpleControllerBase(ControlSurface):
+class SimpleControllerBase(SimpleControlSurface):
   
   def __init__(self, c_instance):
-    ControlSurface.__init__(self, c_instance)
-    self.__slots = self.register_slot_manager()
+    super(SimpleControllerBase, self).__init__(c_instance)
     with self.component_guard():
       self._setup()
 
@@ -20,13 +19,13 @@ class SimpleControllerBase(ControlSurface):
       cb = lambda v: v and callback()
     else:
       cb = callback
-    self.__slots.register_slot(
+    self.register_slot(
       ButtonElement(is_momentary, tp, ch, ctrl), cb, 'value')
 
   def _register_slider(self, callback, ctrl, ch = 0, tp = MIDI_CC_TYPE):
-    self.__slots.register_slot(
+    self.register_slot(
         SliderElement(tp, ch, ctrl), callback, 'value')
 
   def _setup(self):
-    self.log_message("Warning: Override self._setup to set up controllers.")
+    raise NotImplementedError("Override _setup to set up controllers.")
 
