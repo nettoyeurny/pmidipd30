@@ -34,8 +34,8 @@ class PMIDIPD30Ctrl(ControlSurface):
     self.__register_button(44, self.__record)
     self.__register_button(45, self.__start)
     self.__register_button(46, self.__stop)
-    self.__register_button(47, self.__jump_left)
-    self.__register_button(48, self.__jump_right)
+    self.__register_button(47, self.__prev_cue)
+    self.__register_button(48, self.__next_cue)
     self.__register_button(49, self.__toggle_cue)
 
   def __setup_mixer_control(self):
@@ -59,11 +59,11 @@ class PMIDIPD30Ctrl(ControlSurface):
     if not value: return
     self.song().record_mode = not self.song().record_mode
 
-  def __jump_left(self, value):
+  def __prev_cue(self, value):
     if not value: return
     self.song().jump_to_prev_cue()
 
-  def __jump_right(self, value):
+  def __next_cue(self, value):
     if not value: return
     self.song().jump_to_next_cue()
 
