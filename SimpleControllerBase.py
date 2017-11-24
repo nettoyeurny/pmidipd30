@@ -13,14 +13,16 @@ class SimpleControllerBase(SimpleControlSurface):
     with self.component_guard():
       self._setup()
 
-  def _register_button(
-      self, callback, ctrl, ch = 0, tp = MIDI_CC_TYPE, is_momentary = True):
-    if is_momentary:
-      cb = lambda v: v and callback()
-    else:
-      cb = callback
+  def _register_momentary_button(
+      self, callback, ctrl, ch = 0, tp = MIDI_CC_TYPE):
     self.register_slot(
-      ButtonElement(is_momentary, tp, ch, ctrl), cb, 'value')
+      ButtonElement(True, tp, ch, ctrl),
+      lambda v: v and callback(), 'value')
+
+  def _register_toggle_button(
+      self, callback, ctrl, ch = 0, tp = MIDI_CC_TYPE):
+    self.register_slot(
+      ButtonElement(False, tp, ch, ctrl), callback, 'value')
 
   def _register_slider(self, callback, ctrl, ch = 0, tp = MIDI_CC_TYPE):
     self.register_slot(
