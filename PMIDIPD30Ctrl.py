@@ -8,7 +8,7 @@ class PMIDIPD30Ctrl(SimpleControllerBase):
   __doc__ = "PMIDIPD30Ctrl Controller Script"
   
   def __init__(self, c_instance):
-    SimpleControllerBase.__init__(self, c_instance)
+    super(PMIDIPD30Ctrl, self).__init__(c_instance)
 
   def _setup(self):
     # Set up transport.
