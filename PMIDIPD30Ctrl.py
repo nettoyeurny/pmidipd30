@@ -1,38 +1,12 @@
-from __future__ import with_statement
-
-from _Framework.ButtonElement import ButtonElement
-from _Framework.ControlSurface import ControlSurface
-from _Framework.InputControlElement import MIDI_CC_TYPE
-from _Framework.SliderElement import SliderElement
+from BasicController import BasicController
 
 
-class PMIDIPD30Ctrl(ControlSurface):
+class PMIDIPD30Ctrl(BasicController):
   __module__ = __name__
   __doc__ = "PMIDIPD30Ctrl controller script"
   
   def __init__(self, c_instance):
-    ControlSurface.__init__(self, c_instance)
-    self.__slots = self.register_slot_manager()
-    with self.component_guard():
-      self._setup()
-    self.log_message("Created PMIDIPD30Ctrl.")
-
-  def disconnect(self):
-    ControlSurface.disconnect(self)
-    self.log_message("Closed PMIDIPD30Ctrl.")
-
-  def _register_button(
-      self, callback, ctrl, ch = 0, is_momentary = True, tp = MIDI_CC_TYPE):
-    if is_momentary:
-      cb = lambda v: v and callback()
-    else:
-      cb = callback
-    self.__slots.register_slot(
-      ButtonElement(is_momentary, tp, ch, ctrl), cb, 'value')
-
-  def _register_slider(self, callback, ctrl, ch = 0, tp = MIDI_CC_TYPE):
-    self.__slots.register_slot(
-        SliderElement(tp, ch, ctrl), callback, 'value')
+    BasicController.__init__(self, c_instance)
 
   def _setup(self):
     self._register_button(self.__record, 44)
