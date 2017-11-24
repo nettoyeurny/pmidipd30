@@ -5,7 +5,7 @@ from SimpleControllerBase import SimpleControllerBase
 
 class PMIDIPD30Ctrl(SimpleControllerBase):
   __module__ = __name__
-  __doc__ = "PMIDIPD30Ctrl controller script"
+  __doc__ = "PMIDIPD30Ctrl Controller Script"
   
   def __init__(self, c_instance):
     SimpleControllerBase.__init__(self, c_instance)
