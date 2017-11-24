@@ -6,16 +6,13 @@ from _Framework.InputControlElement import MIDI_CC_TYPE
 from _Framework.SliderElement import SliderElement
 
 
-class BasicController(ControlSurface):
+class SimpleControllerBase(ControlSurface):
   
   def __init__(self, c_instance):
     ControlSurface.__init__(self, c_instance)
     self.__slots = self.register_slot_manager()
     with self.component_guard():
       self._setup()
-
-  def disconnect(self):
-    ControlSurface.disconnect(self)
 
   def _register_button(
       self, callback, ctrl, ch = 0, is_momentary = True, tp = MIDI_CC_TYPE):
@@ -31,5 +28,5 @@ class BasicController(ControlSurface):
         SliderElement(tp, ch, ctrl), callback, 'value')
 
   def _setup(self):
-    pass
+    self.log_message("Warning: Override self._setup to set up controllers.")
 

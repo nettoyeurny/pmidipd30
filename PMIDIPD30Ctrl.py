@@ -1,12 +1,12 @@
-from BasicController import BasicController
+from SimpleControllerBase import SimpleControllerBase
 
 
-class PMIDIPD30Ctrl(BasicController):
+class PMIDIPD30Ctrl(SimpleControllerBase):
   __module__ = __name__
   __doc__ = "PMIDIPD30Ctrl controller script"
   
   def __init__(self, c_instance):
-    BasicController.__init__(self, c_instance)
+    SimpleControllerBase.__init__(self, c_instance)
 
   def _setup(self):
     self._register_button(self.__record, 44)
