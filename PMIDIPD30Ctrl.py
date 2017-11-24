@@ -29,4 +29,3 @@ class PMIDIPD30Ctrl(SimpleControllerBase):
   def __set_crossfader(self, value):
     self.song.master_track.mixer_device.crossfader.value = max(
         -1.0, (value - 64) / 63.0)
-

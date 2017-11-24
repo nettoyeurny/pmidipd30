@@ -30,4 +30,3 @@ class SimpleControllerBase(SimpleControlSurface):
 
   def _setup(self):
     raise NotImplementedError("Override _setup to set up controllers.")
-
