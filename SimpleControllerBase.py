@@ -15,7 +15,7 @@ class SimpleControllerBase(ControlSurface):
       self._setup()
 
   def _register_button(
-      self, callback, ctrl, ch = 0, is_momentary = True, tp = MIDI_CC_TYPE):
+      self, callback, ctrl, ch = 0, tp = MIDI_CC_TYPE, is_momentary = True):
     if is_momentary:
       cb = lambda v: v and callback()
     else:
