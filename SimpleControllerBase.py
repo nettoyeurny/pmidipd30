@@ -1,8 +1,10 @@
 from __future__ import with_statement
 
 from ableton.v2.control_surface.control_surface import SimpleControlSurface
+from ableton.v2.control_surface.elements.button import ButtonElement
 from ableton.v2.control_surface.elements.slider import SliderElement
-from ableton.v2.control_surface.input_control_element import MIDI_CC_TYPE
+from ableton.v2.control_surface.input_control_element import \
+    MIDI_CC_TYPE, MIDI_NOTE_TYPE
 
 
 class SimpleControllerBase(SimpleControlSurface):
@@ -16,14 +18,16 @@ class SimpleControllerBase(SimpleControlSurface):
     self._c_instance.log_message(
         '(%s) %s' % (self.__class__.__name__, ' '.join(map(str, msg))))
 
-  def _register_slider(self, callback, ctrl, ch = 0, tp = MIDI_CC_TYPE):
-    self.register_slot(SliderElement(tp, ch, ctrl), callback, 'value')
+  def _register_slider(self, callback, ctrl, ch = 0, is_cc = True):
+    element = SliderElement(MIDI_CC_TYPE, ch, ctrl) if is_cc else \
+              ButtonElement(True, MIDI_NOTE_TYPE, ch, ctrl)
+    self.register_slot(element, callback, 'value')
 
-  def _register_trigger(self, callback, ctrl, ch = 0, tp = MIDI_CC_TYPE):
+  def _register_trigger(self, callback, ctrl, ch = 0, is_cc = True):
     def filtered_callback(value, prev = [0]):
       if value and not prev[0]: callback()
       prev[0] = value
-    self._register_slider(filtered_callback, ctrl, ch, tp)
+    self._register_slider(filtered_callback, ctrl, ch, is_cc)
 
   def _setup(self):
     raise NotImplementedError('Override _setup to set up controllers.')
