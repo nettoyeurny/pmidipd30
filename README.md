@@ -1,10 +1,10 @@
 # pmidipd30 --- Ableton Live remote controller script for Pyle Audio PMIDIPD30
 
-I recently added a [Pyle Audio PMIDIPD30](https://www.pyleaudio.com/sku/PMIDIPD30) to my setup, mostly because it's cheap and it comes with a crossfader. Sadly, it didn't come with a remote controller script for Ableton Live, MIDI maps in Live didn't quite seem to work right, and the generic user remote script doesn't seem to support crossfaders.
+I recently added a [Pyle Audio PMIDIPD30](https://www.pyleaudio.com/sku/PMIDIPD30) to my setup, mostly because it's cheap and it comes with a crossfader. Sadly, it didn't come with a remote controller script for Ableton Live, MIDI maps in Live didn't quite seem to what I want, and the generic user remote script doesn't seem to support crossfaders.
 
 So, it appears that the Live's (mostly undocumented) [Python API](https://github.com/gluon/AbletonLive9_RemoteScripts) is the way to go. It took a little effort to figure this out (hat tip to [Julien Bayle](https://github.com/gluon) and [Hanz Petrov](http://remotescripts.blogspot.de/) for getting me started), but it still took some digging to get things to work the way I wanted.
 
-Specifically, the Live API comes with a number of high-level classes for things like transport control that do lots of complex stuff that I didn't need, while making it hard to set up the basic functionality I wanted.
+Specifically, the Live API comes with a number of high-level classes for things like transport control that do lots of complex stuff that I didn't need, while obscuring the basic functionality that I wanted.
 
 In the end, I found a solution that bypasses most of the complexity of the remote script API while giving access to the (nicely documented) [Live Object Model](https://docs.cycling74.com/max5/refpages/m4l-ref/m4l_live_object_model.html). The result is a simple base class (SimpleControllerBase.py) that I believe will be useful in other settings, plus a device-specific sublass (PMIDIPD30Ctrl.py) that shows how to use it.
 
