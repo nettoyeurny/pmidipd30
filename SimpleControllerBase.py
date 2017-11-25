@@ -13,7 +13,7 @@ class SimpleControllerBase(SimpleControlSurface):
     with self.component_guard():
       self._setup()
 
-  def log_message(self, *msg):
+  def _log_message(self, *msg):
     self._c_instance.log_message(
         '(%s) %s' % (self.__class__.__name__, ' '.join(map(str, msg))))
 
