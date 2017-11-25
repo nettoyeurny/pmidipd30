@@ -6,7 +6,7 @@ So, it appears that the Live's (mostly undocumented) [Python API](https://github
 
 Specifically, the Live API comes with a number of high-level classes for things like transport control that do lots of complex stuff that I didn't need, while making it hard to set up the basic functionality I wanted.
 
-In the end, I found a solution that bypasses most of the complexity of the remote script API while giving access to the (nicely documented) [Live Object Model](https://docs.cycling74.com/max5/refpages/m4l-ref/m4l_live_object_model.html). The result is a simple base class (SimpleControllerBase.py) that I believe will be useful in other settings.
+In the end, I found a solution that bypasses most of the complexity of the remote script API while giving access to the (nicely documented) [Live Object Model](https://docs.cycling74.com/max5/refpages/m4l-ref/m4l_live_object_model.html). The result is a simple base class (SimpleControllerBase.py) that I believe will be useful in other settings, plus a device-specific sublass (PMIDIPD30Ctrl.py) that shows how to use it.
 
 ## Installation
 
