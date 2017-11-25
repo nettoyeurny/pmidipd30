@@ -4,8 +4,6 @@ from SimpleControllerBase import SimpleControllerBase
 
 
 class PMIDIPD30Ctrl(SimpleControllerBase):
-  __module__ = __name__
-  __doc__ = "PMIDIPD30Ctrl Controller Script"
   
   def __init__(self, c_instance):
     super(PMIDIPD30Ctrl, self).__init__(c_instance)

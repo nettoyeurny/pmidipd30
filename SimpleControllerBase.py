@@ -13,6 +13,10 @@ class SimpleControllerBase(SimpleControlSurface):
     with self.component_guard():
       self._setup()
 
+  def log_message(self, *msg):
+    self._c_instance.log_message(
+        '(%s) %s' % (self.__class__.__name__, ' '.join(map(str, msg))))
+
   def _register_momentary_button(
       self, callback, ctrl, ch = 0, tp = MIDI_CC_TYPE):
     self.register_slot(
@@ -29,4 +33,4 @@ class SimpleControllerBase(SimpleControlSurface):
         SliderElement(tp, ch, ctrl), callback, 'value')
 
   def _setup(self):
-    raise NotImplementedError("Override _setup to set up controllers.")
+    raise NotImplementedError('Override _setup to set up controllers.')
