@@ -23,10 +23,7 @@ class SimpleControllerBase(SimpleControlSurface):
     return element
 
   def _register_trigger(self, callback, ctrl, ch = 0, is_cc = True):
-    def filtered_callback(value, prev = [0]):
-      if value and not prev[0]: callback()
-      prev[0] = value
-    return self._register_slider(filtered_callback, ctrl, ch, is_cc)
+    return self._register_slider(lambda v: v and callback(), ctrl, ch, is_cc)
 
   def _setup(self):
     raise NotImplementedError('Override _setup to set up controllers.')
