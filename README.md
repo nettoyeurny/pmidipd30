@@ -19,10 +19,10 @@ from ableton.v2.base import listens
 from SimpleControllerBase import SimpleControllerBase
 
 class QNCtrl(SimpleControllerBase):
- def __init__(self, c_instance):
-   super(QNCtrl, self).__init__(c_instance)
-   self.__listener.subject = self.song
-   self.__listener()
+  def __init__(self, c_instance):
+    super(QNCtrl, self).__init__(c_instance)
+    self.__listener.subject = self.song
+    self.__listener()
 
   @listens('is_playing')
   def __listener(self):
