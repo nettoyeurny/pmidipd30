@@ -20,13 +20,12 @@ class SimpleControllerBase(SimpleControlSurface):
     element = InputControlElement(
         MIDI_CC_TYPE if is_cc else MIDI_NOTE_TYPE, ch, ctrl)
     self.register_slot(element, callback, 'value')
-    return element
 
   def _register_trigger(self, callback, ctrl, ch = 0, is_cc = True):
     def filtered_callback(value, prev = [0]):
       if value and not prev[0]: callback()
       prev[0] = value
-    return self._register_slider(filtered_callback, ctrl, ch, is_cc)
+    self._register_slider(filtered_callback, ctrl, ch, is_cc)
 
   def _setup(self):
     raise NotImplementedError('Override _setup to set up controllers.')
