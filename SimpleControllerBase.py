@@ -17,9 +17,12 @@ class SimpleControllerBase(SimpleControlSurface):
     self._c_instance.log_message(
         '(%s) %s' % (self.__class__.__name__, ' '.join(map(str, msg))))
 
-  def _register_slider(self, callback, ctrl, ch = 0, is_cc = True):
-    element = InputControlElement(
+  def _create_midi_element(self, ctrl, ch = 0, is_cc = True):
+    return InputControlElement(
         MIDI_CC_TYPE if is_cc else MIDI_NOTE_TYPE, ch, ctrl)
+
+  def _register_slider(self, callback, ctrl, ch = 0, is_cc = True):
+    element = self._create_midi_element(ctrl, ch, is_cc)
     self.register_slot(element, callback, 'value')
     return element
 
