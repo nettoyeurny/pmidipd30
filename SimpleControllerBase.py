@@ -1,5 +1,6 @@
 from __future__ import with_statement
 
+from ableton.v2.base import Slot
 from ableton.v2.control_surface.control_surface import SimpleControlSurface
 from ableton.v2.control_surface.input_control_element import \
     InputControlElement, MIDI_CC_TYPE, MIDI_NOTE_TYPE
@@ -24,6 +25,9 @@ class SimpleControllerBase(SimpleControlSurface):
 
   def _register_trigger(self, callback, ctrl, ch = 0, is_cc = True):
     return self._register_slider(lambda v: v and callback(), ctrl, ch, is_cc)
+
+  def _register_listener(self, callback, subj, key):
+    self.register_slot(Slot(subj, callback, key))
 
   def _setup(self):
     raise NotImplementedError('Override _setup to set up controllers.')

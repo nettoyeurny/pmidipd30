@@ -20,6 +20,8 @@ class PMIDIPD30Ctrl(SimpleControllerBase):
     self._register_slider(self.__set_crossfader, 9)
     self._register_trigger(partial(self.__set_crossfader, 0), 1)
     self._register_trigger(partial(self.__set_crossfader, 127), 2)
+    # Set up a property listener, just because we can.
+    self._register_listener(self.__log_play_state, self.song, 'is_playing')
 
   def __toggle_record(self):
     self.song.record_mode = not self.song.record_mode
@@ -27,3 +29,6 @@ class PMIDIPD30Ctrl(SimpleControllerBase):
   def __set_crossfader(self, value):
     self.song.master_track.mixer_device.crossfader.value = max(
         -1.0, (value - 64) / 63.0)
+
+  def __log_play_state(self):
+    self._log_message('play state:', self.song.is_playing)

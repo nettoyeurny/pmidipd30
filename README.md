@@ -10,21 +10,3 @@ In the end, I found a solution that bypasses most of the complexity of the remot
 
 Simply clone this repository into your Live remote MIDI script folder (on my Mac, that's /Applications/Ableton Live 9 Suite.app/Contents/App-Resources/MIDI Remote Scripts). Restart Live, open the MIDI preferences, and select pmidipd30 from the drop-down menu. Select the appropriate input port and make sure to check "Track" and "Remote" on the port.
 
-## A note on tracking changes in Live
-
-I haven't yet worked out a good way to package this, but here's the basic idea.
-
-```python
-from ableton.v2.base import listens
-from SimpleControllerBase import SimpleControllerBase
-
-class QNCtrl(SimpleControllerBase):
-  def __init__(self, c_instance):
-    super(QNCtrl, self).__init__(c_instance)
-    self.__listener.subject = self.song
-    self.__listener()
-
-  @listens('is_playing')
-  def __listener(self):
-    self._log_message('is_playing', self.song.is_playing)
-```
