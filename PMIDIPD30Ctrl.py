@@ -1,10 +1,11 @@
 from functools import partial
 
+from MidiUtils import m_to_s
 from SimpleControllerBase import SimpleControllerBase
 
 
 class PMIDIPD30Ctrl(SimpleControllerBase):
-  
+
   def __init__(self, c_instance):
     super(PMIDIPD30Ctrl, self).__init__(c_instance)
 
@@ -27,8 +28,7 @@ class PMIDIPD30Ctrl(SimpleControllerBase):
     self.song.record_mode = not self.song.record_mode
 
   def __set_crossfader(self, value):
-    self.song.master_track.mixer_device.crossfader.value = max(
-        -1.0, (value - 64) / 63.0)
+    self.song.master_track.mixer_device.crossfader.value = m_to_s(value)
 
   def __log_play_state(self):
     self._log_message('play state:', self.song.is_playing)
