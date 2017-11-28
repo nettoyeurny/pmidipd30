@@ -25,8 +25,8 @@ class SimpleControllerBase(SimpleControlSurface):
     e = self._create_midi_element(60, 0, is_cc = False)  # MIDI note 60, ch 0.
     e.send_value(127, force = True)
 
-    Note that you don't have to set `force = True` if the element was returned
-    by _register_slider or _register_trigger.
+    Note that you don't have to set force = True if the element was returned by
+    _register_slider or _register_trigger.
     """
     return InputControlElement(
         MIDI_CC_TYPE if is_cc else MIDI_NOTE_TYPE, ch, ctrl)
