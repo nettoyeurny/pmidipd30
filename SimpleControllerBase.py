@@ -7,7 +7,7 @@ from ableton.v2.control_surface.input_control_element import \
 
 
 class SimpleControllerBase(SimpleControlSurface):
-  
+
   def __init__(self, c_instance):
     super(SimpleControllerBase, self).__init__(c_instance)
     with self.component_guard():
@@ -24,6 +24,9 @@ class SimpleControllerBase(SimpleControlSurface):
 
     e = self._create_midi_element(60, 0, is_cc = False)  # MIDI note 60, ch 0.
     e.send_value(127, force = True)
+
+    Note that you don't have to set `force = True` if the element was returned
+    by _register_slider or _register_trigger.
     """
     return InputControlElement(
         MIDI_CC_TYPE if is_cc else MIDI_NOTE_TYPE, ch, ctrl)
