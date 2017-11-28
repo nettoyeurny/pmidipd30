@@ -1,13 +1,13 @@
 from functools import partial
 
-from MidiUtils import m_to_s
-from SimpleControllerBase import SimpleControllerBase
+from midi_utils import m_to_s
+from simple_controller_base import SimpleControllerBase
 
 
-class PMIDIPD30Ctrl(SimpleControllerBase):
+class PMIDIPD30(SimpleControllerBase):
 
   def __init__(self, c_instance):
-    super(PMIDIPD30Ctrl, self).__init__(c_instance)
+    super(PMIDIPD30, self).__init__(c_instance)
 
   def _setup(self):
     # Set up transport.
