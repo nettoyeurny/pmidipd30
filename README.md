@@ -4,7 +4,7 @@ I recently added a [Pyle Audio PMIDIPD30](https://www.pyleaudio.com/sku/PMIDIPD3
 
 So, it appears that the Live's (mostly undocumented) [Python API](https://github.com/gluon/AbletonLive9_RemoteScripts) is the way to go. It took a little effort to figure this out (hat tip to [Julien Bayle](https://github.com/gluon) and [Hanz Petrov](http://remotescripts.blogspot.de/) for getting me started). Specifically, the Live API comes with a number of high-level classes for things like transport control that do lots of complex stuff that I didn't need, while obscuring the basic functionality that I wanted.
 
-In the end, I found a solution that bypasses most of the complexity of the remote script API while giving access to the (nicely documented) [Live Object Model](https://docs.cycling74.com/max5/refpages/m4l-ref/m4l_live_object_model.html). The result is a simple base class (SimpleControllerBase.py) that I believe will be useful in other settings, plus a device-specific sublass (PMIDIPD30Ctrl.py) that shows how to use it.
+In the end, I found a solution that bypasses most of the complexity of the remote script API while giving access to the (nicely documented) [Live Object Model](https://docs.cycling74.com/max5/refpages/m4l-ref/m4l_live_object_model.html). The result is a simple base class (simple_controller_base.py) that I believe will be useful in other settings, plus a device-specific sublass (PMIDIPD30.py) that shows how to use it.
 
 ## Installation
 
