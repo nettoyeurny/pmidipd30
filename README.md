@@ -10,3 +10,6 @@ In the end, I found a solution that bypasses most of the complexity of the remot
 
 Simply clone this repository into your Live remote MIDI script folder (on my Mac, that's /Applications/Ableton Live 9 Suite.app/Contents/App-Resources/MIDI Remote Scripts). Restart Live, open the MIDI preferences, and select pmidipd30 from the drop-down menu. Select the appropriate input port and make sure to check "Track" and "Remote" on the port.
 
+## Ableton logs
+
+When working on a script, I find it useful to keep an eye on the logs; just open a terminal window and say `tail -f Library/Preferences/Ableton/Live\ 9.7.5/Log.txt`.
