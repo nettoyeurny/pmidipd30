@@ -50,12 +50,12 @@ class SimpleControllerBase(SimpleControlSurface):
     """
     return self._register_slider(lambda v: v and callback(), ctrl, ch, is_cc)
 
-  def _register_listener(self, callback, subj, key):
+  def _register_listener(self, callback, obj, prop):
     """
     Attaches a callback that takes no arguments to a property (e.g.,
     'is_playing') of an object in Live (e.g., self.song).
     """
-    self.register_slot(Slot(subj, callback, key))
+    self.register_slot(Slot(obj, callback, prop))
 
   def _setup(self):
     raise NotImplementedError('Override _setup to set up controllers.')
