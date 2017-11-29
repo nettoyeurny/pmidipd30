@@ -12,4 +12,4 @@ Simply clone this repository into your Live remote MIDI script folder (on my Mac
 
 ## Ableton logs
 
-When working on a script, I find it useful to keep an eye on the logs; just open a terminal window and say `tail -f Library/Preferences/Ableton/Live\ 9.7.5/Log.txt`.
+When working on a script, I find it useful to keep an eye on the logs; just open a terminal window and say `tail -f Library/Preferences/Ableton/Live\ 9.7.5/Log.txt` (the actual path may be different on your machine).
