@@ -4,8 +4,10 @@ function log_to_page(s) {
   document.getElementById("midi_logs").appendChild(e);
 }
 
-function handleForm() {
-  log_to_page("Submit!");
+function handleTransmitButton() {
+  log_to_page(
+    "Transmit! device: " + document.getElementById("midi_device").value +
+    ", value: " + document.getElementById("mixer_start").value);
 }
 
 function onMIDISuccess(midiAccess) {
@@ -24,12 +26,19 @@ function onMIDIFailure(msg) {
   log_to_page("Failed to get MIDI access: " + msg);
 }
 
-function listPorts(ports) {
+function findDevByName(ports, name) {
   for (var entry of ports) {
     var port = entry[1];
-    console.log("Port [type:'" + port.type + "'] id:'" + port.id +
-      "' manufacturer:'" + port.manufacturer + "' name:'" + port.name +
-      "' version:'" + port.version + "'" );
+    if (port.name === name) return port;
+  }
+}
+
+function listPorts(ports) {
+  for (var entry of ports) {
+    console.log(entry);
+    var port = entry[1];
+    console.log("Port [type:'" + port.type + "'] manufacturer:'" +
+      port.manufacturer + "' name:'" + port.name + "'");
   }
 }
 

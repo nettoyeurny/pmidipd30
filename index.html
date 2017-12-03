@@ -6,9 +6,10 @@
 </head>
 <body>
 <h1>Hello, JavaScript!</h1>
-<form>
-  Mixer section start: <input type = "text" name="mixer_start" value="12">
-</form>
+<p>MIDI device name:
+<input type = "text" id="midi_device" value="PMIDIPD30 USB MIDI Controller"></p>
+<p>Mixer section start: <input type = "text" id="mixer_start" value="12"></p>
+<p><input type = "button" value="Transmit" onclick="handleTransmitButton()"></p>
 <div id="midi_logs"></div>
 </body>
 </html>
