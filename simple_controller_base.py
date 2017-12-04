@@ -48,7 +48,8 @@ class SimpleControllerBase(SimpleControlSurface):
     emits a nonzero value. This is useful for momentary buttons. Returns the
     MIDI element.
     """
-    return self._register_slider(lambda v: v and callback(), ctrl, ch, is_cc)
+    return self._register_slider(
+            lambda v: v >= 64 and callback(), ctrl, ch, is_cc)
 
   def _register_listener(self, callback, obj, prop):
     """
