@@ -156,4 +156,4 @@ configurePMIDIPD30 = function() {
   configure_pmidipd30(odev, knob_start, fader_start, button_start);
 }
 
-navigator.requestMIDIAccess({ sysex: true }).then(onMIDISuccess, onMIDIFailure);
+navigator.requestMIDIAccess({ sysex: false }).then(onMIDISuccess, onMIDIFailure);
