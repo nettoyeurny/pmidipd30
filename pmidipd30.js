@@ -99,7 +99,9 @@ send_scene = function(sleep, dev, index, ks, fs, bs) {
 
 send_postamble = function(sleep, dev) {
   // Lots of zeros to finish, for some reason
-  post_seq(sleep, dev, 50, new Array(256).fill(0));
+  for (var i = 0; i < 196; ++i) {
+    post_byte(sleep, dev, 50, 0x00);
+  }
 }
 
 configure_pmidipd30 = function(dev, ks, fs, bs) {
