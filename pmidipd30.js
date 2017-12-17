@@ -28,10 +28,10 @@ send_preamble = function(sleep, dev) {
   post_raw(sleep, dev, 250, [0x9B, 0x00, 0x02])
 }
 
-send_scene = function(sleep, dev, index, ks, fs, bs) {
+send_scene = function(sleep, dev, idx, ks, fs, bs, bt) {
   // Label
   post_seq(sleep, dev, 50, [
-    index ? 0x09 : 0x00, 0x53, 0x63, 0x65, 0x6E, 0x65, 0x20, 0x31 + index,
+    idx ? 0x09 : 0x00, 0x53, 0x63, 0x65, 0x6E, 0x65, 0x20, 0x31 + idx,
     0x00, 0x00, 0x00, 0x00, 0x00
   ]);
 
@@ -49,9 +49,13 @@ send_scene = function(sleep, dev, index, ks, fs, bs) {
     0x00, 0x01, 0x0A, 0x7F, 0x00,
   ]);
 
+  // MIDI channels per strip.
+  for (var i = 0; i < 9; ++i) {
+    post_byte(sleep, dev, 50, 0x10);
+  }
+
   // Knobs
   post_seq(sleep, dev, 50, [
-    0x10, 0x10, 0x10, 0x10, 0x10, 0x10, 0x10, 0x10, 0x10,
     0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01,
     ks, ks + 1, ks + 2, ks + 3, ks + 4, ks + 5, ks + 6, ks + 7, ks + 8,
     0x7F, 0x7F, 0x7F, 0x7F, 0x7F, 0x7F, 0x7F, 0x7F, 0x7F,
@@ -70,7 +74,7 @@ send_scene = function(sleep, dev, index, ks, fs, bs) {
   post_seq(sleep, dev, 50, [
     0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01,
     bs, bs + 1, bs + 2, bs + 3, bs + 4, bs + 5, bs + 6, bs + 7, bs + 8,
-    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+    bt, bt, bt, bt, bt, bt, bt, bt, bt,
     0x7F, 0x7F, 0x7F, 0x7F, 0x7F, 0x7F, 0x7F, 0x7F, 0x7F
   ]);
 
@@ -104,13 +108,12 @@ send_postamble = function(sleep, dev) {
   }
 }
 
-configure_pmidipd30 = function(dev, ks, fs, bs) {
+configure_pmidipd30 = function(dev, ks, fs, bs, bt) {
   var sleep = sleep_func();
   send_preamble(sleep, dev);
-  send_scene(sleep, dev, 0, ks, fs, bs);
-  send_scene(sleep, dev, 1, ks, fs, bs);
-  send_scene(sleep, dev, 2, ks, fs, bs);
-  send_scene(sleep, dev, 3, ks, fs, bs);
+  for (var i = 0; i < 4; ++i) {
+    send_scene(sleep, dev, i, ks, fs, bs, bt);
+  }
   send_postamble(sleep, dev);
 }
 
@@ -129,7 +132,7 @@ findDevByName = function(ports, name) {
 
 onMIDISuccess = function(midiAccess) {
   log_to_page("MIDI ready!");
-  midi = midiAccess;
+  midi = midiAccess;  // The midi object is global!
 }
 
 onMIDIFailure = function(msg) {
@@ -149,11 +152,13 @@ configurePMIDIPD30 = function() {
   var knob_start = parseInt(document.getElementById("knob_start").value);
   var fader_start = parseInt(document.getElementById("fader_start").value);
   var button_start = parseInt(document.getElementById("button_start").value);
+  var button_toggle = document.getElementById("button_toggle").checked;
   var idev = findDevByName(midi.inputs, dev_name);
   var odev = findDevByName(midi.outputs, dev_name);
   log_to_page("Found devices: " + idev + ", " + odev);
   idev.onmidimessage = onMIDIMessage;
-  configure_pmidipd30(odev, knob_start, fader_start, button_start);
+  configure_pmidipd30(
+    odev, knob_start, fader_start, button_start, button_toggle ? 0x01 : 0x00);
 }
 
 navigator.requestMIDIAccess({ sysex: false }).then(onMIDISuccess, onMIDIFailure);
