@@ -8,7 +8,7 @@ sleep_func = function() {
 }
 
 post_raw = function(sleep_func, dev, delay, bytes) {
-  sleep_func(delay).then(() => { dev.raw(bytes); });
+  sleep_func(delay).then(() => { dev.send(bytes); });
 }
 
 post_byte = function(sleep_func, dev, delay, b) {
@@ -114,5 +114,46 @@ configure_pmidipd30 = function(dev, ks, fs, bs) {
   send_postamble(sleep, dev);
 }
 
-var dev = device("USB MIDI Controller");
-configure_pmidipd30(dev, 16, 32, 48);
+log_to_page = function(s) {
+  var e = document.createElement("p");
+  e.innerHTML =  s;
+  document.getElementById("midi_logs").appendChild(e);
+}
+
+findDevByName = function(ports, name) {
+  for (var entry of ports) {
+    var port = entry[1];
+    if (port.name === name) return port;
+  }
+}
+
+onMIDISuccess = function(midiAccess) {
+  log_to_page("MIDI ready!");
+  midi = midiAccess;
+}
+
+onMIDIFailure = function(msg) {
+  log_to_page("Failed to get MIDI access: " + msg);
+}
+
+onMIDIMessage = function(event) {
+  var str = "MIDI_event: ";
+  for (var i = 0; i < event.data.length; i++) {
+    str += event.data[i].toString(16) + " ";
+  }
+  log_to_page(str);
+}
+
+configurePMIDIPD30 = function() {
+  var dev_name = document.getElementById("device_name").value;
+  var knob_start = parseInt(document.getElementById("knob_start").value);
+  var fader_start = parseInt(document.getElementById("fader_start").value);
+  var button_start = parseInt(document.getElementById("button_start").value);
+  var idev = findDevByName(midi.inputs, dev_name);
+  var odev = findDevByName(midi.outputs, dev_name);
+  log_to_page("Found devices: " + idev + ", " + odev);
+  idev.onmidimessage = onMIDIMessage;
+  configure_pmidipd30(odev, knob_start, fader_start, button_start);
+}
+
+navigator.requestMIDIAccess({ sysex: true }).then(onMIDISuccess, onMIDIFailure);
