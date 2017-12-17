@@ -103,7 +103,7 @@ send_scene = function(sleep, dev, idx, ks, fs, bs, bt) {
 
 send_postamble = function(sleep, dev) {
   // Lots of zeros to finish, for some reason
-  for (var i = 0; i < 196; ++i) {
+  for (var i = 0; i < 140; ++i) {
     post_byte(sleep, dev, 50, 0x00);
   }
 }
