@@ -5,11 +5,13 @@
   </script>
 </head>
 <body>
-<h1>Hello, JavaScript!</h1>
-<p>MIDI device name:
-<input type = "text" id="midi_device" value="PMIDIPD30 USB MIDI Controller"></p>
-<p>Mixer section start: <input type = "text" id="mixer_start" value="12"></p>
-<p><input type = "button" value="Transmit" onclick="handleTransmitButton()"></p>
+<h1>PMIDIPD30 Editor</h1>
+<p>Device name:
+<input type = "text" id="device_name" value="USB MIDI Controller"></p>
+<p>Knob range start: <input type = "text" id="knob_start" value="14"></p>
+<p>Fader range start: <input type = "text" id="fader_start" value="23"></p>
+<p>Button range start: <input type = "text" id="button_start" value="32"></p>
+<p><input type = "button" value="Transmit" onclick="configurePMIDIPD30()"></p>
 <div id="midi_logs"></div>
 </body>
 </html>

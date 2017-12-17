@@ -4,10 +4,17 @@ function log_to_page(s) {
   document.getElementById("midi_logs").appendChild(e);
 }
 
-function handleTransmitButton() {
+function configurePMIDIPD30() {
+  var dev_name = document.getElementById("device_name").value;
+  var knob_start = parseInt(document.getElementById("knob_start").value);
+  var fader_start = parseInt(document.getElementById("fader_start").value);
+  var button_start = parseInt(document.getElementById("button_start").value);
   log_to_page(
-    "Transmit! device: " + document.getElementById("midi_device").value +
-    ", value: " + document.getElementById("mixer_start").value);
+    "Button clicked! device: " + dev_name +
+    ", knob_start: " +   knob_start +
+    ", fader_start: " +  fader_start +
+    ", button_start: " + button_start
+  );
 }
 
 function onMIDISuccess(midiAccess) {
@@ -47,7 +54,7 @@ function onMIDIMessage( event ) {
   for (var i = 0; i < event.data.length; i++) {
     str += event.data[i].toString(16) + " ";
   }
-  console.log(str);
+  log_to_page.log(str);
 }
 
 navigator.requestMIDIAccess({ sysex: true }).then(onMIDISuccess, onMIDIFailure);
