@@ -46,7 +46,7 @@ send_scene = function(sleep, dev, idx, ks, fs, bs, bt) {
     0x00, 0x01, 0x00, 0x02, 0x7F
   ]);
 
-  // Mod buttons 3 & 4 plus encoder, but these settings don't seem to do anything.
+  // Mod buttons 3 & 4 plus encoder (can't be changed, apparently).
   post_seq(sleep, dev, delay_ms, [
     0x00, 0x01, 0x00, 0x43, 0x7F,
     0x00, 0x01, 0x00, 0x40, 0x7F,
@@ -70,7 +70,7 @@ send_scene = function(sleep, dev, idx, ks, fs, bs, bt) {
     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
   ]);
 
-  // Faders (as well as crossfader, but the crossfader can't be configured).
+  // Faders (as well as crossfader, but the crossfader can't be reconfigured).
   post_seq(sleep, dev, delay_ms, [
     0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01,
     fs, fs + 1, fs + 2, fs + 3, fs + 4, fs + 5, fs + 6, fs + 7, fs + 8, 0x09,
@@ -93,7 +93,7 @@ send_scene = function(sleep, dev, idx, ks, fs, bs, bt) {
     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
   ]);
 
-  // Transport.
+  // Transport buttons.
   post_seq(sleep, dev, delay_ms, [
     0x10, 0x01, 0x2F, 0x00, 0x7F,
     0x01, 0x01, 0x2D, 0x00, 0x7F,
