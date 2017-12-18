@@ -31,8 +31,7 @@ send_preamble = function(sleep, dev) {
 send_scene = function(sleep, dev, idx, ks, fs, bs, bt) {
   // Label
   post_seq(sleep, dev, 50, [
-    idx ? 0x09 : 0x00, 0x53, 0x63, 0x65, 0x6E, 0x65, 0x20, 0x31 + idx,
-    0x00, 0x00, 0x00, 0x00, 0x00
+    0x00, 0x53, 0x63, 0x65, 0x6E, 0x65, 0x20, 0x31 + idx, 0x00, 0x00, 0x00, 0x00, 0x00
   ]);
 
   // Mod buttons 1 & 2
@@ -51,7 +50,7 @@ send_scene = function(sleep, dev, idx, ks, fs, bs, bt) {
 
   // MIDI channels per strip.
   for (var i = 0; i < 9; ++i) {
-    post_byte(sleep, dev, 50, 0x10);
+    post_byte(sleep, dev, 50, idx);
   }
 
   // Knobs
