@@ -54,12 +54,13 @@ send_scene = function(sleep, dev, idx, ks, fs, bs, bt) {
     0x00, 0x00, 0x01, 0x0A, 0x7F
   ]);
 
-  // MIDI channels per strip (set to global channel).
+  // MIDI channel per strip.
   for (var i = 0; i < 9; ++i) {
     post_byte(sleep, dev, delay_ms, idx);
   }
-  // MIDI channel of encoder, I think. 0x10 means global channel.
-  post_byte(sleep, dev, delay_ms, 0x10);
+
+  // Filler?
+  post_byte(sleep, dev, delay_ms, 0x00);
 
   // Knobs.
   post_seq(sleep, dev, delay_ms, [
