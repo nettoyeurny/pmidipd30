@@ -140,34 +140,34 @@ log_to_page = function(s) {
   document.getElementById("midi_logs").appendChild(e);
 }
 
-findDevByName = function(ports, name) {
+find_device_by_name = function(ports, name) {
   for (var entry of ports) {
     var port = entry[1];
     if (port.name === name) return port;
   }
 }
 
-configurePMIDIPD30 = function() {
+transmit_button_callback = function() {
   var dev_name = document.getElementById("device_name").value;
   var knob_start = parseInt(document.getElementById("knob_start").value);
   var fader_start = parseInt(document.getElementById("fader_start").value);
   var button_start = parseInt(document.getElementById("button_start").value);
   var button_toggle = document.getElementById("button_toggle").checked;
-  var dev = findDevByName(midi.outputs, dev_name);
+  var dev = find_device_by_name(midi.outputs, dev_name);
   log_to_page("Found device: " + dev);
   configure_pmidipd30(
     dev, knob_start, fader_start, button_start, button_toggle ? 0x01 : 0x00,
     log_to_page);
 }
 
-onMIDISuccess = function(midiAccess) {
+on_midi_success = function(midi_access) {
   log_to_page("MIDI ready!");
-  midi = midiAccess;  // The midi object is global!
+  midi = midi_access;  // The midi object is global!
 }
 
-onMIDIFailure = function(msg) {
+on_midi_failure = function(msg) {
   log_to_page("Failed to get MIDI access: " + msg);
 }
 
 navigator.requestMIDIAccess({ sysex: false }).then(
-    onMIDISuccess, onMIDIFailure);
+    on_midi_success, on_midi_failure);
