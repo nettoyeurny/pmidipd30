@@ -30,8 +30,9 @@ Reverse engineering process for PMIDIPD30:
 
 Device issues:
   * Encoder counts 0, 2, 3, ... going up, but ..., 3, 2, 1, 0 going down.
-  * The encoder channel is the channel of the previous controller, i.e., the
-    encoder is pretty much useless when using multiple channels.
+  * The encoder channel is the channel of whichever controller was used just
+    before it, i.e., the encoder is pretty much useless when using multiple
+    MIDI channels.
   * By default, faders 7 and 8 map to CC 9 and 10, just like crossfader and
     encoder, so they're useless unless reconfigured (that's the reason I wanted
     to figure out the configuration protocol).
