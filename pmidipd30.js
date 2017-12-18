@@ -46,7 +46,7 @@ send_scene = function(sleep, dev, idx, ks, fs, bs, bt) {
     0x00, 0x01, 0x00, 0x02, 0x7F
   ]);
 
-  // Mod buttons 3 & 4 (as well as encoder, ostensibly; doesn't have any effect).
+  // Mod buttons 3 & 4 plus encoder, but these settings don't seem to do anything.
   post_seq(sleep, dev, delay_ms, [
     0x00, 0x01, 0x00, 0x43, 0x7F,
     0x00, 0x01, 0x00, 0x40, 0x7F,
@@ -58,7 +58,7 @@ send_scene = function(sleep, dev, idx, ks, fs, bs, bt) {
   for (var i = 0; i < 9; ++i) {
     post_byte(sleep, dev, delay_ms, idx);
   }
-  // MIDI channel of encoder, I think.
+  // MIDI channel of encoder, I think. 0x10 means global channel.
   post_byte(sleep, dev, delay_ms, 0x10);
 
   // Knobs.
@@ -69,7 +69,7 @@ send_scene = function(sleep, dev, idx, ks, fs, bs, bt) {
     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
   ]);
 
-  // Faders (as well as crossfader; doesn't have any effect).
+  // Faders (as well as crossfader, but the crossfader can't be configured).
   post_seq(sleep, dev, delay_ms, [
     0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01,
     fs, fs + 1, fs + 2, fs + 3, fs + 4, fs + 5, fs + 6, fs + 7, fs + 8, 0x09,
