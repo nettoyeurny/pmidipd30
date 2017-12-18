@@ -111,7 +111,7 @@ send_scene = function(sleep, dev, idx, ks, fs, bs, bt) {
 send_postamble = function(sleep, dev) {
   var delay_ms = 50;
 
-  // Lots of zeros to finish, for some reason
+  // Lots of zeros to finish, for some reason.
   for (var i = 0; i < 160; ++i) {
     post_byte(sleep, dev, delay_ms, 0x00);
   }
@@ -120,11 +120,13 @@ send_postamble = function(sleep, dev) {
 configure_pmidipd30 = function(dev, ks, fs, bs, bt) {
   var sleep = sleep_func();
   sleep(0).then(() => { log_to_page("Transmitting config..."); });
+  sleep(0).then(() => { log_to_page("Preamble..."); });
   send_preamble(sleep, dev);
   for (let i = 0; i < 4; ++i) {
-    sleep(0).then(() => { log_to_page("Scene " + i + "..."); });
+    sleep(0).then(() => { log_to_page("Bank " + (i + 1) + "..."); });
     send_scene(sleep, dev, i, ks, fs, bs, bt);
   }
+  sleep(0).then(() => { log_to_page("Postamble..."); });
   send_postamble(sleep, dev);
   sleep(0).then(() => { log_to_page("Done!"); });
 }
