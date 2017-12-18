@@ -19,8 +19,8 @@ Reverse engineering process for PMIDIPD30:
     again, with the device plugged in directly, and now the update succeeded.
   * Sort of. The device was updated, but the config was broken (transport
     buttons didn't work, etc.).
-  * Turns out that updates aren't done with sysex but with a ludicrously
-    inefficient protocol piggybacking on MIDI note messages.
+  * Turns out that updates aren't done with sysex but with a strangely indirect
+    protocol piggybacking on MIDI note messages.
   * Looking at the messages and the nature of the misconfiguration, noticed that
     some of the data seemed misaligned by one byte.
   * Added a filler byte in what seemed like the right place, sent the corrected
