@@ -12,7 +12,7 @@ post_raw = function(sleep, dev, delay, bytes) {
 }
 
 post_byte = function(sleep, dev, delay, b) {
-  post_raw(sleep, dev, delay, [0x90,b>>0x04,b&0x0f]);
+  post_raw(sleep, dev, delay, [0x90, b>>0x04, b&0x0f]);
 }
 
 post_seq = function(sleep, dev, delay, seq) {
@@ -22,29 +22,32 @@ post_seq = function(sleep, dev, delay, seq) {
 }
 
 send_preamble = function(sleep, dev) {
-  post_raw(sleep, dev, 250, [0x9B, 0x01, 0x02])
-  post_raw(sleep, dev, 250, [0x9B, 0x7E, 0x7D])
-  post_raw(sleep, dev, 250, [0x9B, 0x01, 0x03])
-  post_raw(sleep, dev, 250, [0x9B, 0x00, 0x02])
+  var delay_ms = 250;
+  post_raw(sleep, dev, delay_ms, [0x9B, 0x01, 0x02])
+  post_raw(sleep, dev, delay_ms, [0x9B, 0x7E, 0x7D])
+  post_raw(sleep, dev, delay_ms, [0x9B, 0x01, 0x03])
+  post_raw(sleep, dev, delay_ms, [0x9B, 0x00, 0x02])
 }
 
 send_scene = function(sleep, dev, idx, ks, fs, bs, bt) {
-  // Global MIDI channel.
-  post_byte(sleep, dev, 50, 0x00);
+  var delay_ms = 50;
 
-  // Label.
-  post_seq(sleep, dev, 50, [
+  // Global MIDI channel.
+  post_byte(sleep, dev, delay_ms, 0x00);
+
+  // Label (up to eleven characters).
+  post_seq(sleep, dev, delay_ms, [
     0x53, 0x63, 0x65, 0x6E, 0x65, 0x20, 0x31 + idx, 0x00, 0x00, 0x00, 0x00
   ]);
 
   // Mod buttons 1 & 2.
-  post_seq(sleep, dev, 50, [
+  post_seq(sleep, dev, delay_ms, [
     0x00, 0x01, 0x00, 0x01, 0x7F,
     0x00, 0x01, 0x00, 0x02, 0x7F
   ]);
 
   // Mod buttons 3 & 4 (as well as encoder, ostensibly; doesn't have any effect).
-  post_seq(sleep, dev, 50, [
+  post_seq(sleep, dev, delay_ms, [
     0x00, 0x01, 0x00, 0x43, 0x7F,
     0x00, 0x01, 0x00, 0x40, 0x7F,
     0x00, 0x00, 0x00, 0x00, 0x00,
@@ -53,13 +56,13 @@ send_scene = function(sleep, dev, idx, ks, fs, bs, bt) {
 
   // MIDI channels per strip (set to global channel).
   for (var i = 0; i < 9; ++i) {
-    post_byte(sleep, dev, 50, idx);
+    post_byte(sleep, dev, delay_ms, idx);
   }
   // MIDI channel of encoder, I think.
-  post_byte(sleep, dev, 50, 0x10);
+  post_byte(sleep, dev, delay_ms, 0x10);
 
   // Knobs.
-  post_seq(sleep, dev, 50, [
+  post_seq(sleep, dev, delay_ms, [
     0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01,
     ks, ks + 1, ks + 2, ks + 3, ks + 4, ks + 5, ks + 6, ks + 7, ks + 8,
     0x7F, 0x7F, 0x7F, 0x7F, 0x7F, 0x7F, 0x7F, 0x7F, 0x7F,
@@ -67,7 +70,7 @@ send_scene = function(sleep, dev, idx, ks, fs, bs, bt) {
   ]);
 
   // Faders (as well as crossfader; doesn't have any effect).
-  post_seq(sleep, dev, 50, [
+  post_seq(sleep, dev, delay_ms, [
     0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01,
     fs, fs + 1, fs + 2, fs + 3, fs + 4, fs + 5, fs + 6, fs + 7, fs + 8, 0x09,
     0x7F, 0x7F, 0x7F, 0x7F, 0x7F, 0x7F, 0x7F, 0x7F, 0x7F, 0x7F,
@@ -75,7 +78,7 @@ send_scene = function(sleep, dev, idx, ks, fs, bs, bt) {
   ]);
 
   // Buttons.
-  post_seq(sleep, dev, 50, [
+  post_seq(sleep, dev, delay_ms, [
     0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01,
     bs, bs + 1, bs + 2, bs + 3, bs + 4, bs + 5, bs + 6, bs + 7, bs + 8,
     bt, bt, bt, bt, bt, bt, bt, bt, bt,
@@ -83,14 +86,14 @@ send_scene = function(sleep, dev, idx, ks, fs, bs, bt) {
   ]);
 
   // Filler?
-  post_seq(sleep, dev, 50, [
+  post_seq(sleep, dev, delay_ms, [
     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
   ]);
 
   // Transport.
-  post_seq(sleep, dev, 50, [
+  post_seq(sleep, dev, delay_ms, [
     0x10, 0x01, 0x2F, 0x00, 0x7F,
     0x01, 0x01, 0x2D, 0x00, 0x7F,
     0x04, 0x01, 0x30, 0x00, 0x7F,
@@ -100,15 +103,17 @@ send_scene = function(sleep, dev, idx, ks, fs, bs, bt) {
   ]);
 
   // Terminal byte.
-  post_seq(sleep, dev, 50, [
+  post_seq(sleep, dev, delay_ms, [
     0x05,
   ]);
 }
 
 send_postamble = function(sleep, dev) {
+  var delay_ms = 50;
+
   // Lots of zeros to finish, for some reason
   for (var i = 0; i < 160; ++i) {
-    post_byte(sleep, dev, 50, 0x00);
+    post_byte(sleep, dev, delay_ms, 0x00);
   }
 }
 
