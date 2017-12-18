@@ -12,7 +12,9 @@ post_raw = function(sleep, dev, delay, bytes) {
 }
 
 post_byte = function(sleep, dev, delay, b) {
-  post_raw(sleep, dev, delay, [0x90, b>>0x04, b&0x0f]);
+  // Yes, we're really sending a byte by packaging it as a note event, with the
+  // high nibble as the note value and the low nibble as the velocity.
+  post_raw(sleep, dev, delay, [0x90, b >> 0x04, b & 0x0f]);
 }
 
 post_seq = function(sleep, dev, delay, seq) {
@@ -166,4 +168,5 @@ onMIDIFailure = function(msg) {
   log_to_page("Failed to get MIDI access: " + msg);
 }
 
-navigator.requestMIDIAccess({ sysex: false }).then(onMIDISuccess, onMIDIFailure);
+navigator.requestMIDIAccess({ sysex: false }).then(
+    onMIDISuccess, onMIDIFailure);
