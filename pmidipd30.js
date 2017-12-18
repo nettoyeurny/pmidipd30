@@ -120,30 +120,18 @@ send_postamble = function(sleep, dev) {
   }
 }
 
-configure_pmidipd30 = function(dev, ks, fs, bs, bt) {
+configure_pmidipd30 = function(dev, ks, fs, bs, bt, log_func) {
   var sleep = sleep_func();
-  sleep(0).then(() => { log_to_page("Transmitting config..."); });
-  sleep(0).then(() => { log_to_page("Preamble..."); });
+  sleep(0).then(() => { log_func("Transmitting config..."); });
+  sleep(0).then(() => { log_func("Preamble..."); });
   send_preamble(sleep, dev);
   for (let i = 0; i < 4; ++i) {
-    sleep(0).then(() => { log_to_page("Bank " + (i + 1) + "..."); });
+    sleep(0).then(() => { log_func("Bank " + (i + 1) + "..."); });
     send_scene(sleep, dev, i, ks, fs, bs, bt);
   }
-  sleep(0).then(() => { log_to_page("Postamble..."); });
+  sleep(0).then(() => { log_func("Postamble..."); });
   send_postamble(sleep, dev);
-  sleep(0).then(() => { log_to_page("Done!"); });
-}
-
-configurePMIDIPD30 = function() {
-  var dev_name = document.getElementById("device_name").value;
-  var knob_start = parseInt(document.getElementById("knob_start").value);
-  var fader_start = parseInt(document.getElementById("fader_start").value);
-  var button_start = parseInt(document.getElementById("button_start").value);
-  var button_toggle = document.getElementById("button_toggle").checked;
-  var dev = findDevByName(midi.outputs, dev_name);
-  log_to_page("Found device: " + dev);
-  configure_pmidipd30(
-    dev, knob_start, fader_start, button_start, button_toggle ? 0x01 : 0x00);
+  sleep(0).then(() => { log_func("Done!"); });
 }
 
 log_to_page = function(s) {
@@ -157,6 +145,19 @@ findDevByName = function(ports, name) {
     var port = entry[1];
     if (port.name === name) return port;
   }
+}
+
+configurePMIDIPD30 = function() {
+  var dev_name = document.getElementById("device_name").value;
+  var knob_start = parseInt(document.getElementById("knob_start").value);
+  var fader_start = parseInt(document.getElementById("fader_start").value);
+  var button_start = parseInt(document.getElementById("button_start").value);
+  var button_toggle = document.getElementById("button_toggle").checked;
+  var dev = findDevByName(midi.outputs, dev_name);
+  log_to_page("Found device: " + dev);
+  configure_pmidipd30(
+    dev, knob_start, fader_start, button_start, button_toggle ? 0x01 : 0x00,
+    log_to_page);
 }
 
 onMIDISuccess = function(midiAccess) {

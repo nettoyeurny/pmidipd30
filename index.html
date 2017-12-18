@@ -6,8 +6,28 @@
 </head>
 <body>
 <h1>PMIDIPD30 Editor</h1>
+
 <p><b>WARNING!</b> This is a highly experimental tool for configuring the
 Pyle Audio PMIDIPD30 MIDI controller. Use at your own risk!</p>
+<p>Instead of configuring individual components, this script makes the following
+simplifying assumptions:<p>
+
+<ol>
+  <li>We only configure the behavior of the nine channel strips (knob, fader,
+    button). Crossfader, transport constrols, encoder, and the four leftmost
+    buttons are not affected.</li>
+  <li>All four banks are configured identically, except for the MIDI channel of
+    the nine channel strips (which will be the number of the bank). All other
+    controls use MIDI channel 1.</li>
+  <li>Knobs, faders, and buttons will be numbered contiguously, so we only
+    specify the first value of each range.</li>
+  <li>There's a single flag that determines whether the nine consecutive
+    buttons will be toggles or momentary.</li>
+</ol>
+
+<p>If you need more fine-grained control, feel free to modify the
+<a href="pmidipd30.js">JavaScript file.</a></p>
+
 <p>MIDI port name:
 <input type = "text" id="device_name" value="USB MIDI Controller"></p>
 <p>Knob range start: <input type = "text" id="knob_start" value="14"></p>
