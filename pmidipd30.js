@@ -7,17 +7,17 @@ sleep_func = function() {
   }
 }
 
-post_raw = function(sleep_func, dev, delay, bytes) {
-  sleep_func(delay).then(() => { dev.send(bytes); });
+post_raw = function(sleep, dev, delay, bytes) {
+  sleep(delay).then(() => { dev.send(bytes); });
 }
 
-post_byte = function(sleep_func, dev, delay, b) {
-  post_raw(sleep_func, dev, delay, [0x90,b>>0x04,b&0x0f]);
+post_byte = function(sleep, dev, delay, b) {
+  post_raw(sleep, dev, delay, [0x90,b>>0x04,b&0x0f]);
 }
 
-post_seq = function(sleep_func, dev, delay, seq) {
+post_seq = function(sleep, dev, delay, seq) {
   seq.forEach(function(b) {
-    post_byte(sleep_func, dev, delay, b);
+    post_byte(sleep, dev, delay, b);
   });
 }
 
@@ -107,18 +107,33 @@ send_scene = function(sleep, dev, idx, ks, fs, bs, bt) {
 
 send_postamble = function(sleep, dev) {
   // Lots of zeros to finish, for some reason
-  for (var i = 0; i < 140; ++i) {
+  for (var i = 0; i < 160; ++i) {
     post_byte(sleep, dev, 50, 0x00);
   }
 }
 
 configure_pmidipd30 = function(dev, ks, fs, bs, bt) {
   var sleep = sleep_func();
+  sleep(0).then(() => { log_to_page("Transmitting config..."); });
   send_preamble(sleep, dev);
-  for (var i = 0; i < 4; ++i) {
+  for (let i = 0; i < 4; ++i) {
+    sleep(0).then(() => { log_to_page("Scene " + i + "..."); });
     send_scene(sleep, dev, i, ks, fs, bs, bt);
   }
   send_postamble(sleep, dev);
+  sleep(0).then(() => { log_to_page("Done!"); });
+}
+
+configurePMIDIPD30 = function() {
+  var dev_name = document.getElementById("device_name").value;
+  var knob_start = parseInt(document.getElementById("knob_start").value);
+  var fader_start = parseInt(document.getElementById("fader_start").value);
+  var button_start = parseInt(document.getElementById("button_start").value);
+  var button_toggle = document.getElementById("button_toggle").checked;
+  var dev = findDevByName(midi.outputs, dev_name);
+  log_to_page("Found device: " + dev);
+  configure_pmidipd30(
+    dev, knob_start, fader_start, button_start, button_toggle ? 0x01 : 0x00);
 }
 
 log_to_page = function(s) {
@@ -141,28 +156,6 @@ onMIDISuccess = function(midiAccess) {
 
 onMIDIFailure = function(msg) {
   log_to_page("Failed to get MIDI access: " + msg);
-}
-
-onMIDIMessage = function(event) {
-  var str = "MIDI_event: ";
-  for (var i = 0; i < event.data.length; i++) {
-    str += event.data[i].toString(16) + " ";
-  }
-  log_to_page(str);
-}
-
-configurePMIDIPD30 = function() {
-  var dev_name = document.getElementById("device_name").value;
-  var knob_start = parseInt(document.getElementById("knob_start").value);
-  var fader_start = parseInt(document.getElementById("fader_start").value);
-  var button_start = parseInt(document.getElementById("button_start").value);
-  var button_toggle = document.getElementById("button_toggle").checked;
-  var idev = findDevByName(midi.inputs, dev_name);
-  var odev = findDevByName(midi.outputs, dev_name);
-  log_to_page("Found devices: " + idev + ", " + odev);
-  idev.onmidimessage = onMIDIMessage;
-  configure_pmidipd30(
-    odev, knob_start, fader_start, button_start, button_toggle ? 0x01 : 0x00);
 }
 
 navigator.requestMIDIAccess({ sysex: false }).then(onMIDISuccess, onMIDIFailure);
