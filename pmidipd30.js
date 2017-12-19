@@ -2,13 +2,19 @@ add_to_sched = (sched, delay, func) => {
   sched.push([func, delay]);
 }
 
-execute_sched = (sched, i) => {
+execute_sched = (sched, i, log_func) => {
   if (sched.length > i) {
     var ev = sched[i];
-    ev[0]();
-    setTimeout(() => {
-      execute_sched(sched, i + 1);
-    }, ev[1]);
+    try {
+      ev[0]();
+      setTimeout(() => {
+        execute_sched(sched, i + 1, log_func);
+      }, ev[1]);
+    } catch (e) {
+      log_func("Failure! (" + e + ")");
+    }
+  } else {
+    log_func("Success!");
   }
 }
 
@@ -136,8 +142,7 @@ configure_pmidipd30 = (dev, ks, fs, bs, bt, log_func) => {
   }
   add_to_sched(sched, 0, () => { log_func("Postamble..."); });
   send_postamble(sched, dev);
-  add_to_sched(sched, 0, () => { log_func("Done!"); });
-  execute_sched(sched, 0);
+  execute_sched(sched, 0, log_func);
 }
 
 log_to_page = (s) => {
