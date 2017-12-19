@@ -158,9 +158,7 @@ configure_pmidipd30 = (dev, ks, fs, bs, bt, log_func) => {
 }
 
 log_to_page = (s) => {
-  var e = document.createElement("p");
-  e.innerHTML =  s;
-  document.getElementById("midi_logs").appendChild(e);
+  document.getElementById("midi_logs").firstChild.innerHTML = s;
 }
 
 find_device_by_name = (ports, name) => {
