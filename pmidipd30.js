@@ -2,19 +2,19 @@ add_to_sched = (sched, delay, func) => {
   sched.push([func, delay]);
 }
 
-execute_sched = (sched, i, log_func) => {
+execute_sched = (sched, i, on_success, on_failure) => {
   if (sched.length > i) {
     var ev = sched[i];
     try {
       ev[0]();
       setTimeout(() => {
-        execute_sched(sched, i + 1, log_func);
+        execute_sched(sched, i + 1, on_success, on_failure);
       }, ev[1]);
     } catch (e) {
-      log_func("Failure! (" + e + ")");
+      on_failure(e);
     }
   } else {
-    log_func("Success!");
+    on_success();
   }
 }
 
@@ -131,18 +131,30 @@ send_postamble = (sched, dev) => {
   }
 }
 
+ready = true
 configure_pmidipd30 = (dev, ks, fs, bs, bt, log_func) => {
-  var sched = [];
-  add_to_sched(sched, 0, () => { log_func("Transmitting config..."); });
-  add_to_sched(sched, 0, () => { log_func("Preamble..."); });
-  send_preamble(sched, dev);
-  for (let i = 0; i < 4; ++i) {
-    add_to_sched(sched, 0, () => { log_func("Bank " + (i + 1) + "..."); });
-    send_scene(sched, dev, i, ks, fs, bs, bt);
+  if (ready) {
+    ready = false
+    var sched = [];
+    add_to_sched(sched, 0, () => { log_func("Transmitting config..."); });
+    add_to_sched(sched, 0, () => { log_func("Preamble..."); });
+    send_preamble(sched, dev);
+    for (let i = 0; i < 4; ++i) {
+      add_to_sched(sched, 0, () => { log_func("Bank " + (i + 1) + "..."); });
+      send_scene(sched, dev, i, ks, fs, bs, bt);
+    }
+    add_to_sched(sched, 0, () => { log_func("Postamble..."); });
+    send_postamble(sched, dev);
+    execute_sched(sched, 0, () => {
+      ready = true;
+      log_func("Success!");
+    }, (err) => {
+      ready = true;
+      log_func("Error (" + err + ")");
+    });
+  } else {
+    log_func("Busy!");
   }
-  add_to_sched(sched, 0, () => { log_func("Postamble..."); });
-  send_postamble(sched, dev);
-  execute_sched(sched, 0, log_func);
 }
 
 log_to_page = (s) => {
