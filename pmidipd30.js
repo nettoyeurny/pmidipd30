@@ -1,55 +1,60 @@
-sleep_func = function() {
-  var time_offset = 0;
-  return function(time) {
-    var p = new Promise((resolve) => setTimeout(resolve, time_offset));
-    time_offset += time;
-    return p;
+add_to_sched = (sched, delay, func) => {
+  sched.push([func, delay]);
+}
+
+execute_sched = (sched) => {
+  if (sched.length > 0) {
+    var ev = sched[0];
+    ev[0]();
+    setTimeout(() => {
+      execute_sched(sched.slice(1));
+    }, ev[1]);
   }
 }
 
-post_raw = function(sleep, dev, delay, bytes) {
-  sleep(delay).then(() => { dev.send(bytes); });
+post_raw = (sched, dev, delay, bytes) => {
+  add_to_sched(sched, delay, () => { dev.send(bytes); });
 }
 
-post_byte = function(sleep, dev, delay, b) {
+post_byte = (sched, dev, delay, b) => {
   // Yes, we're really sending a byte by packaging it as a note event, with the
   // high nibble as the note value and the low nibble as the velocity.
-  post_raw(sleep, dev, delay, [0x90, b >> 0x04, b & 0x0f]);
+  post_raw(sched, dev, delay, [0x90, b >> 0x04, b & 0x0f]);
 }
 
-post_seq = function(sleep, dev, delay, seq) {
-  seq.forEach(function(b) {
-    post_byte(sleep, dev, delay, b);
+post_seq = (sched, dev, delay, seq) => {
+  seq.forEach((b) => {
+    post_byte(sched, dev, delay, b);
   });
 }
 
-send_preamble = function(sleep, dev) {
+send_preamble = (sched, dev) => {
   var delay_ms = 250;
-  post_raw(sleep, dev, delay_ms, [0x9B, 0x01, 0x02])
-  post_raw(sleep, dev, delay_ms, [0x9B, 0x7E, 0x7D])
-  post_raw(sleep, dev, delay_ms, [0x9B, 0x01, 0x03])
-  post_raw(sleep, dev, delay_ms, [0x9B, 0x00, 0x02])
+  post_raw(sched, dev, delay_ms, [0x9B, 0x01, 0x02])
+  post_raw(sched, dev, delay_ms, [0x9B, 0x7E, 0x7D])
+  post_raw(sched, dev, delay_ms, [0x9B, 0x01, 0x03])
+  post_raw(sched, dev, delay_ms, [0x9B, 0x00, 0x02])
 }
 
-send_scene = function(sleep, dev, idx, ks, fs, bs, bt) {
+send_scene = (sched, dev, idx, ks, fs, bs, bt) => {
   var delay_ms = 50;
 
   // Global MIDI channel.
-  post_byte(sleep, dev, delay_ms, 0x00);
+  post_byte(sched, dev, delay_ms, 0x00);
 
   // Label (up to eleven characters).
-  post_seq(sleep, dev, delay_ms, [
+  post_seq(sched, dev, delay_ms, [
     0x53, 0x63, 0x65, 0x6E, 0x65, 0x20, 0x31 + idx, 0x00, 0x00, 0x00, 0x00
   ]);
 
   // Mod buttons 1 & 2.
-  post_seq(sleep, dev, delay_ms, [
+  post_seq(sched, dev, delay_ms, [
     0x00, 0x01, 0x00, 0x01, 0x7F,
     0x00, 0x01, 0x00, 0x02, 0x7F
   ]);
 
   // Mod buttons 3 & 4 plus encoder (can't be changed, apparently).
-  post_seq(sleep, dev, delay_ms, [
+  post_seq(sched, dev, delay_ms, [
     0x00, 0x01, 0x00, 0x43, 0x7F,
     0x00, 0x01, 0x00, 0x40, 0x7F,
     0x00, 0x00, 0x00, 0x00, 0x00,
@@ -58,14 +63,14 @@ send_scene = function(sleep, dev, idx, ks, fs, bs, bt) {
 
   // MIDI channel per strip.
   for (var i = 0; i < 9; ++i) {
-    post_byte(sleep, dev, delay_ms, idx);
+    post_byte(sched, dev, delay_ms, idx);
   }
 
   // Filler?
-  post_byte(sleep, dev, delay_ms, 0x00);
+  post_byte(sched, dev, delay_ms, 0x00);
 
   // Knobs.
-  post_seq(sleep, dev, delay_ms, [
+  post_seq(sched, dev, delay_ms, [
     0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01,
     ks, ks + 1, ks + 2, ks + 3, ks + 4, ks + 5, ks + 6, ks + 7, ks + 8,
     0x7F, 0x7F, 0x7F, 0x7F, 0x7F, 0x7F, 0x7F, 0x7F, 0x7F,
@@ -73,7 +78,7 @@ send_scene = function(sleep, dev, idx, ks, fs, bs, bt) {
   ]);
 
   // Faders (as well as crossfader, but the crossfader can't be reconfigured).
-  post_seq(sleep, dev, delay_ms, [
+  post_seq(sched, dev, delay_ms, [
     0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01,
     fs, fs + 1, fs + 2, fs + 3, fs + 4, fs + 5, fs + 6, fs + 7, fs + 8, 0x09,
     0x7F, 0x7F, 0x7F, 0x7F, 0x7F, 0x7F, 0x7F, 0x7F, 0x7F, 0x7F,
@@ -81,7 +86,7 @@ send_scene = function(sleep, dev, idx, ks, fs, bs, bt) {
   ]);
 
   // Buttons.
-  post_seq(sleep, dev, delay_ms, [
+  post_seq(sched, dev, delay_ms, [
     0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01,
     bs, bs + 1, bs + 2, bs + 3, bs + 4, bs + 5, bs + 6, bs + 7, bs + 8,
     bt, bt, bt, bt, bt, bt, bt, bt, bt,
@@ -89,14 +94,14 @@ send_scene = function(sleep, dev, idx, ks, fs, bs, bt) {
   ]);
 
   // Filler?
-  post_seq(sleep, dev, delay_ms, [
+  post_seq(sched, dev, delay_ms, [
     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
   ]);
 
   // Transport buttons.
-  post_seq(sleep, dev, delay_ms, [
+  post_seq(sched, dev, delay_ms, [
     0x10, 0x01, 0x2F, 0x00, 0x7F,
     0x01, 0x01, 0x2D, 0x00, 0x7F,
     0x04, 0x01, 0x30, 0x00, 0x7F,
@@ -106,48 +111,49 @@ send_scene = function(sleep, dev, idx, ks, fs, bs, bt) {
   ]);
 
   // Terminal byte.
-  post_seq(sleep, dev, delay_ms, [
+  post_seq(sched, dev, delay_ms, [
     0x05,
   ]);
 }
 
-send_postamble = function(sleep, dev) {
+send_postamble = (sched, dev) => {
   var delay_ms = 50;
 
   // Lots of zeros to finish, for some reason.
   for (var i = 0; i < 160; ++i) {
-    post_byte(sleep, dev, delay_ms, 0x00);
+    post_byte(sched, dev, delay_ms, 0x00);
   }
 }
 
-configure_pmidipd30 = function(dev, ks, fs, bs, bt, log_func) {
-  var sleep = sleep_func();
-  sleep(0).then(() => { log_func("Transmitting config..."); });
-  sleep(0).then(() => { log_func("Preamble..."); });
-  send_preamble(sleep, dev);
+configure_pmidipd30 = (dev, ks, fs, bs, bt, log_func) => {
+  var sched = [];
+  add_to_sched(sched, 0, () => { log_func("Transmitting config..."); });
+  add_to_sched(sched, 0, () => { log_func("Preamble..."); });
+  send_preamble(sched, dev);
   for (let i = 0; i < 4; ++i) {
-    sleep(0).then(() => { log_func("Bank " + (i + 1) + "..."); });
-    send_scene(sleep, dev, i, ks, fs, bs, bt);
+    add_to_sched(sched, 0, () => { log_func("Bank " + (i + 1) + "..."); });
+    send_scene(sched, dev, i, ks, fs, bs, bt);
   }
-  sleep(0).then(() => { log_func("Postamble..."); });
-  send_postamble(sleep, dev);
-  sleep(0).then(() => { log_func("Done!"); });
+  add_to_sched(sched, 0, () => { log_func("Postamble..."); });
+  send_postamble(sched, dev);
+  add_to_sched(sched, 0, () => { log_func("Done!"); });
+  execute_sched(sched);
 }
 
-log_to_page = function(s) {
+log_to_page = (s) => {
   var e = document.createElement("p");
   e.innerHTML =  s;
   document.getElementById("midi_logs").appendChild(e);
 }
 
-find_device_by_name = function(ports, name) {
+find_device_by_name = (ports, name) => {
   for (var entry of ports) {
     var port = entry[1];
     if (port.name === name) return port;
   }
 }
 
-transmit_button_callback = function() {
+transmit_button_callback = () => {
   var dev_name = document.getElementById("device_name").value;
   var knob_start = parseInt(document.getElementById("knob_start").value);
   var fader_start = parseInt(document.getElementById("fader_start").value);
@@ -160,12 +166,12 @@ transmit_button_callback = function() {
     log_to_page);
 }
 
-on_midi_success = function(midi_access) {
+on_midi_success = (midi_access) => {
   log_to_page("MIDI ready!");
   midi = midi_access;  // The midi object is global!
 }
 
-on_midi_failure = function(msg) {
+on_midi_failure = (msg) => {
   log_to_page("Failed to get MIDI access: " + msg);
 }
 
