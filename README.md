@@ -13,3 +13,7 @@ Simply clone this repository into your Live remote MIDI script folder (on my Mac
 ## Ableton logs
 
 When working on a script, I find it useful to keep an eye on the logs; just open a terminal window and say `tail -f Library/Preferences/Ableton/Live\ 9.7.5/Log.txt` (the actual path may be different on your machine).
+
+## Configuration editor
+
+The PMIDIPD30 is misconfigured out of the box. Specifically, all four banks are the same, and faders 7 and 8 are useless because they map to the same CC numbers as the crossfader and encoder. This repository includes a rough configuration editor that fixes this problem. It uses the Web MIDI API; just open `index.html`.
