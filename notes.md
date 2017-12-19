@@ -36,4 +36,3 @@ Device issues:
   * By default, faders 7 and 8 map to CC 9 and 10, just like crossfader and
     encoder, so they're useless unless reconfigured (that was the main
     motivation for figuring out the configuration protocol).
-  * Device update seems to be rather slow and sensitive to timing.

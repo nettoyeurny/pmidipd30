@@ -35,7 +35,7 @@ post_seq = (sched, dev, delay, seq) => {
 }
 
 send_preamble = (sched, dev) => {
-  var delay_ms = 250;
+  var delay_ms = 100;
   post_raw(sched, dev, delay_ms, [0x9B, 0x01, 0x02])
   post_raw(sched, dev, delay_ms, [0x9B, 0x7E, 0x7D])
   post_raw(sched, dev, delay_ms, [0x9B, 0x01, 0x03])
@@ -43,7 +43,7 @@ send_preamble = (sched, dev) => {
 }
 
 send_scene = (sched, dev, idx, ks, fs, bs, bt) => {
-  var delay_ms = 50;
+  var delay_ms = 20;
 
   // Global MIDI channel.
   post_byte(sched, dev, delay_ms, 0x00);
@@ -150,7 +150,7 @@ configure_pmidipd30 = (dev, ks, fs, bs, bt, log_func) => {
       log_func("Success!");
     }, (err) => {
       ready = true;
-      log_func("Error (" + err + ")");
+      log_func("Error! (" + err + ")");
     });
   } else {
     log_func("Busy!");
