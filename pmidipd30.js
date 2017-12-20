@@ -160,11 +160,9 @@ function configure_pmidipd30(dev, ks, fs, bs, bt, log_func) {
   }
   sched.add(0, () => { log_func("Transmitting Postamble..."); });
   send_postamble(sched, dev);
-  sched.execute(() => {
-    log_func("Success!");
-  }, (err) => {
-    log_func("Error! (" + err + ")");
-  });
+  sched.execute(
+      () => { log_func("Success!"); },
+      (err) => { log_func("Error! (" + err + ")"); });
 }
 
 function log_to_page(s) {
