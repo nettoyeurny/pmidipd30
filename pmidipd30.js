@@ -68,7 +68,7 @@ send_scene = (sched, dev, idx, ks, fs, bs, bt) => {
   ]);
 
   // MIDI channel per strip.
-  for (var i = 0; i < 9; ++i) {
+  for (let i = 0; i < 9; ++i) {
     post_byte(sched, dev, delay_ms, idx);
   }
 
@@ -126,7 +126,7 @@ send_postamble = (sched, dev) => {
   const delay_ms = 50;
 
   // Lots of zeros to finish, for some reason.
-  for (var i = 0; i < 160; ++i) {
+  for (let i = 0; i < 160; ++i) {
     post_byte(sched, dev, delay_ms, 0x00);
   }
 }
