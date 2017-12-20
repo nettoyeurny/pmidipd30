@@ -183,10 +183,14 @@ function transmit_button_callback() {
   const button_start = parseInt(document.getElementById("button_start").value);
   const button_toggle = document.getElementById("button_toggle").checked;
   const dev = find_device_by_name(midi.outputs, dev_name);
-  log_to_page("Found device: " + dev);
-  configure_pmidipd30(
-    dev, knob_start, fader_start, button_start, button_toggle ? 0x01 : 0x00,
-    log_to_page);
+  if (dev === undefined) {
+    log_to_page("Device not found: " + dev_name);
+  } else {
+    log_to_page("Found device: " + dev);
+    configure_pmidipd30(
+      dev, knob_start, fader_start, button_start, button_toggle ? 0x01 : 0x00,
+      log_to_page);
+  }
 }
 
 var midi = null;
