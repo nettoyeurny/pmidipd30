@@ -133,7 +133,6 @@ function send_postamble(sched, dev) {
   }
 }
 
-var ready = true
 function configure_pmidipd30(dev, ks, fs, bs, bt, log_func) {
   if (ready) {
     ready = false
@@ -170,7 +169,6 @@ function find_device_by_name(ports, name) {
   }
 }
 
-var midi = null;
 function transmit_button_callback() {
   const dev_name = document.getElementById("device_name").value;
   const knob_start = parseInt(document.getElementById("knob_start").value);
@@ -192,6 +190,9 @@ function on_midi_success(midi_access) {
 function on_midi_failure(msg) {
   log_to_page("Failed to get MIDI access: " + msg);
 }
+
+var midi = null;
+var ready = true;
 
 navigator.requestMIDIAccess({ sysex: false }).then(
     on_midi_success, on_midi_failure);
