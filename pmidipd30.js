@@ -1,27 +1,44 @@
 "use strict";
 
-function add_to_sched(sched, delay, func) {
-  sched.push([func, delay]);
-}
+var ready = true;  // Global ready flag; only one execution at a time!
 
-function execute_sched(sched, i, on_success, on_failure) {
-  if (sched.length > i) {
-    const ev = sched[i];
-    try {
-      ev[0]();
-      setTimeout(() => {
-        execute_sched(sched, i + 1, on_success, on_failure);
-      }, ev[1]);
-    } catch (e) {
-      on_failure(e);
+function Schedule() {
+  this.sched = [];
+
+  this.add = function(delay, func) {
+    this.sched.push([func, delay]);
+  }
+
+  this.execute = function(on_success, on_failure) {
+    if (ready) {
+      ready = false;
+      this.execute_internal(0, on_success, on_failure);
+    } else {
+      on_failure("Busy!");
     }
-  } else {
-    on_success();
+  }
+
+  this.execute_internal = function(i, on_success, on_failure) {
+    if (this.sched.length > i) {
+      const ev = this.sched[i];
+      try {
+        ev[0]();
+        setTimeout(() => {
+          this.execute_internal(i + 1, on_success, on_failure);
+        }, ev[1]);
+      } catch (e) {
+        on_failure(e);
+        ready = true;
+      }
+    } else {
+      on_success();
+      ready = true;
+    }
   }
 }
 
 function post_raw(sched, dev, delay, bytes) {
-  add_to_sched(sched, delay, () => { dev.send(bytes); });
+  sched.add(delay, () => { dev.send(bytes); });
 }
 
 function post_byte(sched, dev, delay, b) {
@@ -134,28 +151,20 @@ function send_postamble(sched, dev) {
 }
 
 function configure_pmidipd30(dev, ks, fs, bs, bt, log_func) {
-  if (ready) {
-    ready = false
-    const sched = [];
-    add_to_sched(sched, 0, () => { log_func("Transmitting Preamble..."); });
-    send_preamble(sched, dev);
-    for (let i = 0; i < 4; ++i) {
-      add_to_sched(
-        sched, 0, () => { log_func("Transmitting Bank " + (i + 1) + "..."); });
-      send_scene(sched, dev, i, ks, fs, bs, bt);
-    }
-    add_to_sched(sched, 0, () => { log_func("Transmitting Postamble..."); });
-    send_postamble(sched, dev);
-    execute_sched(sched, 0, () => {
-      ready = true;
-      log_func("Success!");
-    }, (err) => {
-      ready = true;
-      log_func("Error! (" + err + ")");
-    });
-  } else {
-    log_func("Busy!");
+  const sched = new Schedule();
+  sched.add(0, () => { log_func("Transmitting Preamble..."); });
+  send_preamble(sched, dev);
+  for (let i = 0; i < 4; ++i) {
+    sched.add(0, () => { log_func("Transmitting Bank " + (i + 1) + "..."); });
+    send_scene(sched, dev, i, ks, fs, bs, bt);
   }
+  sched.add(0, () => { log_func("Transmitting Postamble..."); });
+  send_postamble(sched, dev);
+  sched.execute(() => {
+    log_func("Success!");
+  }, (err) => {
+    log_func("Error! (" + err + ")");
+  });
 }
 
 function log_to_page(s) {
@@ -182,17 +191,11 @@ function transmit_button_callback() {
     log_to_page);
 }
 
-function on_midi_success(midi_access) {
-  log_to_page("MIDI ready!");
-  midi = midi_access;  // The midi object is global!
-}
-
-function on_midi_failure(msg) {
-  log_to_page("Failed to get MIDI access: " + msg);
-}
-
 var midi = null;
-var ready = true;
-
 navigator.requestMIDIAccess({ sysex: false }).then(
-    on_midi_success, on_midi_failure);
+    (midi_access) => {
+      midi = midi_access;
+      log_to_page("MIDI ready!");
+    }, (msg) => {
+      log_to_page("Failed to get MIDI access: " + msg);
+    });
