@@ -4,7 +4,7 @@ add_to_sched = (sched, delay, func) => {
 
 execute_sched = (sched, i, on_success, on_failure) => {
   if (sched.length > i) {
-    var ev = sched[i];
+    const ev = sched[i];
     try {
       ev[0]();
       setTimeout(() => {
@@ -35,7 +35,7 @@ post_seq = (sched, dev, delay, seq) => {
 }
 
 send_preamble = (sched, dev) => {
-  var delay_ms = 100;
+  const delay_ms = 100;
   post_raw(sched, dev, delay_ms, [0x9B, 0x01, 0x02])
   post_raw(sched, dev, delay_ms, [0x9B, 0x7E, 0x7D])
   post_raw(sched, dev, delay_ms, [0x9B, 0x01, 0x03])
@@ -43,7 +43,7 @@ send_preamble = (sched, dev) => {
 }
 
 send_scene = (sched, dev, idx, ks, fs, bs, bt) => {
-  var delay_ms = 20;
+  const delay_ms = 20;
 
   // Global MIDI channel.
   post_byte(sched, dev, delay_ms, 0x00);
@@ -123,7 +123,7 @@ send_scene = (sched, dev, idx, ks, fs, bs, bt) => {
 }
 
 send_postamble = (sched, dev) => {
-  var delay_ms = 50;
+  const delay_ms = 50;
 
   // Lots of zeros to finish, for some reason.
   for (var i = 0; i < 160; ++i) {
@@ -135,15 +135,15 @@ ready = true
 configure_pmidipd30 = (dev, ks, fs, bs, bt, log_func) => {
   if (ready) {
     ready = false
-    var sched = [];
-    add_to_sched(sched, 0, () => { log_func("Transmitting config..."); });
-    add_to_sched(sched, 0, () => { log_func("Preamble..."); });
+    const sched = [];
+    add_to_sched(sched, 0, () => { log_func("Transmitting Preamble..."); });
     send_preamble(sched, dev);
     for (let i = 0; i < 4; ++i) {
-      add_to_sched(sched, 0, () => { log_func("Bank " + (i + 1) + "..."); });
+      add_to_sched(
+        sched, 0, () => { log_func("Transmitting Bank " + (i + 1) + "..."); });
       send_scene(sched, dev, i, ks, fs, bs, bt);
     }
-    add_to_sched(sched, 0, () => { log_func("Postamble..."); });
+    add_to_sched(sched, 0, () => { log_func("Transmitting Postamble..."); });
     send_postamble(sched, dev);
     execute_sched(sched, 0, () => {
       ready = true;
@@ -162,19 +162,19 @@ log_to_page = (s) => {
 }
 
 find_device_by_name = (ports, name) => {
-  for (var entry of ports) {
-    var port = entry[1];
+  for (const entry of ports) {
+    const port = entry[1];
     if (port.name === name) return port;
   }
 }
 
 transmit_button_callback = () => {
-  var dev_name = document.getElementById("device_name").value;
-  var knob_start = parseInt(document.getElementById("knob_start").value);
-  var fader_start = parseInt(document.getElementById("fader_start").value);
-  var button_start = parseInt(document.getElementById("button_start").value);
-  var button_toggle = document.getElementById("button_toggle").checked;
-  var dev = find_device_by_name(midi.outputs, dev_name);
+  const dev_name = document.getElementById("device_name").value;
+  const knob_start = parseInt(document.getElementById("knob_start").value);
+  const fader_start = parseInt(document.getElementById("fader_start").value);
+  const button_start = parseInt(document.getElementById("button_start").value);
+  const button_toggle = document.getElementById("button_toggle").checked;
+  const dev = find_device_by_name(midi.outputs, dev_name);
   log_to_page("Found device: " + dev);
   configure_pmidipd30(
     dev, knob_start, fader_start, button_start, button_toggle ? 0x01 : 0x00,
