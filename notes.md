@@ -24,7 +24,7 @@ Reverse engineering process for PMIDIPD30:
   * Looking at the messages and the nature of the misconfiguration, noticed that
     some of the data seemed misaligned by one byte.
   * Added a filler byte in what seemed like the right place, sent the corrected
-    config to the device (via WebMIDI), and it worked. Whew...
+    config to the device (via Web MIDI API), and it worked. Whew...
   * Once I had a working config and a way to upload it, the rest of the format
     was straightforward to reverse engineer (see pmidipd30.js).
 
