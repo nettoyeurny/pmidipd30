@@ -1,8 +1,10 @@
-add_to_sched = (sched, delay, func) => {
+"use strict";
+
+function add_to_sched(sched, delay, func) {
   sched.push([func, delay]);
 }
 
-execute_sched = (sched, i, on_success, on_failure) => {
+function execute_sched(sched, i, on_success, on_failure) {
   if (sched.length > i) {
     const ev = sched[i];
     try {
@@ -18,23 +20,23 @@ execute_sched = (sched, i, on_success, on_failure) => {
   }
 }
 
-post_raw = (sched, dev, delay, bytes) => {
+function post_raw(sched, dev, delay, bytes) {
   add_to_sched(sched, delay, () => { dev.send(bytes); });
 }
 
-post_byte = (sched, dev, delay, b) => {
+function post_byte(sched, dev, delay, b) {
   // Yes, we're really sending a byte by packaging it as a note event, with the
   // high nibble as the note value and the low nibble as the velocity.
   post_raw(sched, dev, delay, [0x90, b >> 0x04, b & 0x0f]);
 }
 
-post_seq = (sched, dev, delay, seq) => {
+function post_seq(sched, dev, delay, seq) {
   seq.forEach((b) => {
     post_byte(sched, dev, delay, b);
   });
 }
 
-send_preamble = (sched, dev) => {
+function send_preamble(sched, dev) {
   const delay_ms = 100;
   post_raw(sched, dev, delay_ms, [0x9B, 0x01, 0x02])
   post_raw(sched, dev, delay_ms, [0x9B, 0x7E, 0x7D])
@@ -42,7 +44,7 @@ send_preamble = (sched, dev) => {
   post_raw(sched, dev, delay_ms, [0x9B, 0x00, 0x02])
 }
 
-send_scene = (sched, dev, idx, ks, fs, bs, bt) => {
+function send_scene(sched, dev, idx, ks, fs, bs, bt) {
   const delay_ms = 20;
 
   // Global MIDI channel.
@@ -122,7 +124,7 @@ send_scene = (sched, dev, idx, ks, fs, bs, bt) => {
   ]);
 }
 
-send_postamble = (sched, dev) => {
+function send_postamble(sched, dev) {
   const delay_ms = 50;
 
   // Lots of zeros to finish, for some reason.
@@ -131,8 +133,8 @@ send_postamble = (sched, dev) => {
   }
 }
 
-ready = true
-configure_pmidipd30 = (dev, ks, fs, bs, bt, log_func) => {
+var ready = true
+function configure_pmidipd30(dev, ks, fs, bs, bt, log_func) {
   if (ready) {
     ready = false
     const sched = [];
@@ -157,18 +159,19 @@ configure_pmidipd30 = (dev, ks, fs, bs, bt, log_func) => {
   }
 }
 
-log_to_page = (s) => {
+function log_to_page(s) {
   document.getElementById("midi_logs").innerHTML = s;
 }
 
-find_device_by_name = (ports, name) => {
+function find_device_by_name(ports, name) {
   for (const entry of ports) {
     const port = entry[1];
     if (port.name === name) return port;
   }
 }
 
-transmit_button_callback = () => {
+var midi = null;
+function transmit_button_callback() {
   const dev_name = document.getElementById("device_name").value;
   const knob_start = parseInt(document.getElementById("knob_start").value);
   const fader_start = parseInt(document.getElementById("fader_start").value);
@@ -181,12 +184,12 @@ transmit_button_callback = () => {
     log_to_page);
 }
 
-on_midi_success = (midi_access) => {
+function on_midi_success(midi_access) {
   log_to_page("MIDI ready!");
   midi = midi_access;  // The midi object is global!
 }
 
-on_midi_failure = (msg) => {
+function on_midi_failure(msg) {
   log_to_page("Failed to get MIDI access: " + msg);
 }
 
