@@ -194,6 +194,7 @@ function transmit_button_callback() {
 }
 
 var midi = null;
+
 navigator.requestMIDIAccess({ sysex: false }).then(
     (midi_access) => {
       midi = midi_access;
