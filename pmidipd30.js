@@ -27,12 +27,12 @@ function Schedule() {
           this.execute_internal(i + 1, on_success, on_failure);
         }, ev[1]);
       } catch (e) {
-        on_failure(e);
         ready = true;
+        on_failure(e);
       }
     } else {
-      on_success();
       ready = true;
+      on_success();
     }
   }
 }
