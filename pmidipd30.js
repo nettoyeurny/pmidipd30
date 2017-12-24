@@ -48,9 +48,7 @@ function post_byte(sched, dev, delay, b) {
 }
 
 function post_seq(sched, dev, delay, seq) {
-  seq.forEach((b) => {
-    post_byte(sched, dev, delay, b);
-  });
+  seq.forEach((b) => { post_byte(sched, dev, delay, b); });
 }
 
 function send_preamble(sched, dev) {
