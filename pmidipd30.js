@@ -51,12 +51,38 @@ function post_seq(sched, dev, delay, seq) {
   seq.forEach((b) => { post_byte(sched, dev, delay, b); });
 }
 
+function dump_config(sched, dev) {
+  const delay1_ms = 100;
+  post_raw(sched, dev, delay1_ms, [0x9B, 0x01, 0x02]);
+  post_raw(sched, dev, delay1_ms, [0x9B, 0x7E, 0x7D]);
+  // Response (not sure what it means):
+  //   9B 01 02
+  //   9B 01 32
+  post_raw(sched, dev, delay1_ms, [0x9B, 0x01, 0x04]);
+  // Response (not sure what it means):
+  //   9B 01 04
+  //   9B 00 01
+  const delay2_ms = 50;
+  for (var s = 0; s < 4; ++s) {  // Four scenes.
+    for (var b = 0; b < 222; ++b) {  // 222 bytes per scene.
+      // This MIDI events polls the device. The response is a single byte 0xpq,
+      // packaged as 0x9B 0x0p 0x0q.
+      post_raw(sched, dev, delay2_ms, [0x9B, 0x01, 0x06]);
+    }
+  }
+  // This terminates the data dump. We can terminate early if we don't want to
+  // dump the entire config. If we keep polling the device after the entire
+  // config has been transmitted, the device will keep sending zeros in
+  // response.
+  post_raw(sched, dev, delay2_ms, [0x9B, 0x01, 0x05]);
+}
+
 function send_preamble(sched, dev) {
   const delay_ms = 100;
-  post_raw(sched, dev, delay_ms, [0x9B, 0x01, 0x02])
-  post_raw(sched, dev, delay_ms, [0x9B, 0x7E, 0x7D])
-  post_raw(sched, dev, delay_ms, [0x9B, 0x01, 0x03])
-  post_raw(sched, dev, delay_ms, [0x9B, 0x00, 0x02])
+  post_raw(sched, dev, delay_ms, [0x9B, 0x01, 0x02]);
+  post_raw(sched, dev, delay_ms, [0x9B, 0x7E, 0x7D]);
+  post_raw(sched, dev, delay_ms, [0x9B, 0x01, 0x03]);
+  post_raw(sched, dev, delay_ms, [0x9B, 0x00, 0x02]);
 }
 
 function send_scene(sched, dev, idx, ks, fs, bs, bt) {
