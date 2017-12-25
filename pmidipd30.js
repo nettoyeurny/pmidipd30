@@ -51,6 +51,9 @@ function post_seq(sched, dev, delay, seq) {
   seq.forEach((b) => { post_byte(sched, dev, delay, b); });
 }
 
+// This function currently isn't terribly useful because it doesn't capture the
+// data returned by the device, but it does document how to make the device
+// dump its config.
 function dump_config(sched, dev) {
   const delay1_ms = 100;
   post_raw(sched, dev, delay1_ms, [0x9B, 0x01, 0x02]);
