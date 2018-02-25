@@ -196,15 +196,6 @@ const configure_pmidipd30 = (dev, ks, fs, bs, bt) => {
       });
 }
 
-const find_device_by_name = (ports, name) => {
-  for (const entry of ports) {
-    const port = entry[1];
-    if (port.name === name) {
-      return port;
-    }
-  }
-}
-
 const set_status = s => {
   document.getElementById("midi_logs").innerHTML = s;
 }
@@ -222,17 +213,16 @@ navigator.requestMIDIAccess({sysex: false}).then(
         const fader_start = parseInt(document.getElementById("fader_start").value);
         const b_start = parseInt(document.getElementById("button_start").value);
         const b_toggle = document.getElementById("button_toggle").checked;
-        const dev = find_device_by_name(midi_access.outputs, dev_name);
-        if (dev === undefined) {
-          window.alert("Device not found: " + dev_name);
-        } else {
-          set_status("Found device: " + dev);
+        const port = [...midi_access.outputs].find(p => p[1].name === dev_name);
+        if (port) {
           try {
             configure_pmidipd30(
-              dev, knob_start, fader_start, b_start, b_toggle ? 0x01 : 0x00);
+              port[1], knob_start, fader_start, b_start, b_toggle ? 0x01 : 0x00);
           } catch (e) {
             window.alert(e);
           }
+        } else {
+          window.alert("Device not found: " + dev_name);
         }
       }
       set_status("MIDI ready!");
