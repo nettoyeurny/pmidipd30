@@ -13,7 +13,7 @@ const create_scheduler = (() => {
         if (busy) { throw "Busy!"; }
         busy = true;
 
-        const execute_internal = (i) => {
+        const execute_internal = i => {
           if (sched.length > i) {
             const ev = sched[i];
             try {
@@ -46,7 +46,7 @@ const post_byte = (sched, dev, delay, b) => {
 }
 
 const post_seq = (sched, dev, delay, seq) => {
-  seq.forEach((b) => post_byte(sched, dev, delay, b));
+  seq.forEach(b => post_byte(sched, dev, delay, b));
 }
 
 // This function currently isn't terribly useful because it doesn't capture the
@@ -190,7 +190,7 @@ const configure_pmidipd30 = (dev, ks, fs, bs, bt) => {
         set_status("MIDI ready!");
         window.alert("Success!");
       },
-      (err) => {
+      err => {
         set_status("MIDI ready!");
         window.alert("Error! (" + err + ")");
       });
@@ -205,7 +205,7 @@ const find_device_by_name = (ports, name) => {
   }
 }
 
-const set_status = (s) => {
+const set_status = s => {
   document.getElementById("midi_logs").innerHTML = s;
 }
 
@@ -215,7 +215,7 @@ var transmit_button_callback = () => {
 }
 
 navigator.requestMIDIAccess({sysex: false}).then(
-    (midi_access) => {
+    midi_access => {
       transmit_button_callback = () => {
         const dev_name = document.getElementById("device_name").value;
         const knob_start = parseInt(document.getElementById("knob_start").value);
@@ -236,7 +236,7 @@ navigator.requestMIDIAccess({sysex: false}).then(
         }
       }
       set_status("MIDI ready!");
-    }, (msg) => {
+    }, msg => {
       set_status("MIDI not available.");
       window.alert("Failed to get MIDI access: " + msg);
     });
