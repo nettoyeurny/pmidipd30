@@ -4,21 +4,23 @@ const create_scheduler = (() => {
   var busy = false;  // Only active scheduler at a time.
 
   return () => {
-    const sched = [];
+    const events = [];
 
     return {
-      add(delay, func) { sched.push([func, delay]); },
+      add(delay, func) { events.push([delay, func]); },
 
       execute(on_success, on_failure) {
-        if (busy) { throw "Busy!"; }
+        if (busy) {
+          throw "Busy!";
+        }
         busy = true;
 
         const execute_internal = i => {
-          if (sched.length > i) {
-            const ev = sched[i];
+          if (events.length > i) {
+            const [delay, func] = events[i];
             try {
-              ev[0]();
-              setTimeout(() => execute_internal(i + 1), ev[1]);
+              func();
+              setTimeout(() => execute_internal(i + 1), delay);
             } catch (e) {
               busy = false;
               on_failure(e);
