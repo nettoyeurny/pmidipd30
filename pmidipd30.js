@@ -1,59 +1,57 @@
 "use strict";
 
-var ready = true;  // Global ready flag; only one execution at a time!
+const create_scheduler = (() => {
+  var busy = false;  // Only active scheduler at a time.
 
-function Schedule() {
-  this.sched = [];
+  return () => {
+    const sched = [];
 
-  this.add = function(delay, func) {
-    this.sched.push([func, delay]);
-  }
+    return {
+      add: (delay, func) => { sched.push([func, delay]); },
 
-  this.execute = function(on_success, on_failure) {
-    if (ready) {
-      ready = false;
-      this.execute_internal(0, on_success, on_failure);
-    } else {
-      on_failure("Busy!");
+      execute: (on_success, on_failure) => {
+        if (busy) { throw "Busy!"; }
+        busy = true;
+
+        const execute_internal = (i) => {
+          if (sched.length > i) {
+            const ev = sched[i];
+            try {
+              ev[0]();
+              setTimeout(() => { execute_internal(i + 1); }, ev[1]);
+            } catch (e) {
+              busy = false;
+              on_failure(e);
+            }
+          } else {
+            busy = false;
+            on_success();
+          }
+        }
+
+        execute_internal(0);
+      },
     }
   }
+})()
 
-  this.execute_internal = function(i, on_success, on_failure) {
-    if (this.sched.length > i) {
-      const ev = this.sched[i];
-      try {
-        ev[0]();
-        setTimeout(() => {
-          this.execute_internal(i + 1, on_success, on_failure);
-        }, ev[1]);
-      } catch (e) {
-        on_failure(e);
-        ready = true;
-      }
-    } else {
-      on_success();
-      ready = true;
-    }
-  }
-}
-
-function post_raw(sched, dev, delay, bytes) {
+const post_raw = (sched, dev, delay, bytes) => {
   sched.add(delay, () => { dev.send(bytes); });
 }
 
-function post_byte(sched, dev, delay, b) {
+const post_byte = (sched, dev, delay, b) => {
   // Yes, we're really sending a byte by packaging it as a note event, with the
   // high nibble as the note value and the low nibble as the velocity.
   post_raw(sched, dev, delay, [0x90, b >> 0x04, b & 0x0f]);
 }
 
-function post_seq(sched, dev, delay, seq) {
+const post_seq = (sched, dev, delay, seq) => {
   seq.forEach((b) => {
     post_byte(sched, dev, delay, b);
   });
 }
 
-function send_preamble(sched, dev) {
+const send_preamble = (sched, dev) => {
   const delay_ms = 100;
   post_raw(sched, dev, delay_ms, [0x9B, 0x01, 0x02])
   post_raw(sched, dev, delay_ms, [0x9B, 0x7E, 0x7D])
@@ -61,7 +59,7 @@ function send_preamble(sched, dev) {
   post_raw(sched, dev, delay_ms, [0x9B, 0x00, 0x02])
 }
 
-function send_scene(sched, dev, idx, ks, fs, bs, bt) {
+const send_scene = (sched, dev, idx, ks, fs, bs, bt) => {
   const delay_ms = 20;
 
   // Global MIDI channel.
@@ -141,7 +139,7 @@ function send_scene(sched, dev, idx, ks, fs, bs, bt) {
   ]);
 }
 
-function send_postamble(sched, dev) {
+const send_postamble = (sched, dev) => {
   const delay_ms = 50;
 
   // Lots of zeros to finish, for some reason.
@@ -150,54 +148,66 @@ function send_postamble(sched, dev) {
   }
 }
 
-function configure_pmidipd30(dev, ks, fs, bs, bt, log_func) {
-  const sched = new Schedule();
-  sched.add(0, () => { log_func("Transmitting Preamble..."); });
+const configure_pmidipd30 = (dev, ks, fs, bs, bt) => {
+  const sched = create_scheduler();
+  sched.add(0, () => { set_status("Transmitting Preamble..."); });
   send_preamble(sched, dev);
   for (let i = 0; i < 4; ++i) {
-    sched.add(0, () => { log_func("Transmitting Bank " + (i + 1) + "..."); });
+    sched.add(0, () => { set_status("Transmitting Bank " + (i + 1) + "..."); });
     send_scene(sched, dev, i, ks, fs, bs, bt);
   }
-  sched.add(0, () => { log_func("Transmitting Postamble..."); });
+  sched.add(0, () => { set_status("Transmitting Postamble..."); });
   send_postamble(sched, dev);
   sched.execute(
-      () => { log_func("Success!"); },
-      (err) => { log_func("Error! (" + err + ")"); });
+      () => {
+        set_status("MIDI ready!");
+        window.alert("Success!");
+      },
+      (err) => {
+        set_status("MIDI ready!");
+        window.alert("Error! (" + err + ")");
+      });
 }
 
-function log_to_page(s) {
-  document.getElementById("midi_logs").innerHTML = s;
-}
-
-function find_device_by_name(ports, name) {
+const find_device_by_name = (ports, name) => {
   for (const entry of ports) {
     const port = entry[1];
     if (port.name === name) return port;
   }
 }
 
-function transmit_button_callback() {
-  const dev_name = document.getElementById("device_name").value;
-  const knob_start = parseInt(document.getElementById("knob_start").value);
-  const fader_start = parseInt(document.getElementById("fader_start").value);
-  const button_start = parseInt(document.getElementById("button_start").value);
-  const button_toggle = document.getElementById("button_toggle").checked;
-  const dev = find_device_by_name(midi.outputs, dev_name);
-  if (dev === undefined) {
-    log_to_page("Device not found: " + dev_name);
-  } else {
-    log_to_page("Found device: " + dev);
-    configure_pmidipd30(
-      dev, knob_start, fader_start, button_start, button_toggle ? 0x01 : 0x00,
-      log_to_page);
-  }
+const set_status = (s) => {
+  document.getElementById("midi_logs").innerHTML = s;
 }
 
-var midi = null;
-navigator.requestMIDIAccess({ sysex: false }).then(
+// Default callback; will be replaced if MIDI is available.
+var transmit_button_callback = () => {
+  window.alert("No MIDI access!");
+}
+
+navigator.requestMIDIAccess({sysex: false}).then(
     (midi_access) => {
-      midi = midi_access;
-      log_to_page("MIDI ready!");
+      transmit_button_callback = () => {
+        const dev_name = document.getElementById("device_name").value;
+        const knob_start = parseInt(document.getElementById("knob_start").value);
+        const fader_start = parseInt(document.getElementById("fader_start").value);
+        const b_start = parseInt(document.getElementById("button_start").value);
+        const b_toggle = document.getElementById("button_toggle").checked;
+        const dev = find_device_by_name(midi_access.outputs, dev_name);
+        if (dev === undefined) {
+          window.alert("Device not found: " + dev_name);
+        } else {
+          set_status("Found device: " + dev);
+          try {
+            configure_pmidipd30(
+              dev, knob_start, fader_start, b_start, b_toggle ? 0x01 : 0x00);
+          } catch (e) {
+            window.alert(e);
+          }
+        }
+      }
+      set_status("MIDI ready!");
     }, (msg) => {
-      log_to_page("Failed to get MIDI access: " + msg);
+      set_status("MIDI not available.");
+      window.alert("Failed to get MIDI access: " + msg);
     });
