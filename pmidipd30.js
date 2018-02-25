@@ -7,9 +7,9 @@ const create_scheduler = (() => {
     const sched = [];
 
     return {
-      add: (delay, func) => { sched.push([func, delay]); },
+      add(delay, func) { sched.push([func, delay]); },
 
-      execute: (on_success, on_failure) => {
+      execute(on_success, on_failure) {
         if (busy) { throw "Busy!"; }
         busy = true;
 
@@ -18,7 +18,7 @@ const create_scheduler = (() => {
             const ev = sched[i];
             try {
               ev[0]();
-              setTimeout(() => { execute_internal(i + 1); }, ev[1]);
+              setTimeout(() => execute_internal(i + 1), ev[1]);
             } catch (e) {
               busy = false;
               on_failure(e);
@@ -30,13 +30,13 @@ const create_scheduler = (() => {
         }
 
         execute_internal(0);
-      },
+      }
     }
   }
 })()
 
 const post_raw = (sched, dev, delay, bytes) => {
-  sched.add(delay, () => { dev.send(bytes); });
+  sched.add(delay, () => dev.send(bytes));
 }
 
 const post_byte = (sched, dev, delay, b) => {
@@ -46,7 +46,7 @@ const post_byte = (sched, dev, delay, b) => {
 }
 
 const post_seq = (sched, dev, delay, seq) => {
-  seq.forEach((b) => { post_byte(sched, dev, delay, b); });
+  seq.forEach((b) => post_byte(sched, dev, delay, b));
 }
 
 // This function currently isn't terribly useful because it doesn't capture the
@@ -64,8 +64,8 @@ const dump_config = (sched, dev) => {
   //   9B 01 04
   //   9B 00 01
   const delay2_ms = 50;
-  for (var s = 0; s < 4; ++s) {  // Four scenes.
-    for (var b = 0; b < 222; ++b) {  // 222 bytes per scene.
+  for (let s = 0; s < 4; ++s) {  // Four scenes.
+    for (let b = 0; b < 222; ++b) {  // 222 bytes per scene.
       // This MIDI events polls the device. The response is a single byte 0xpq,
       // packaged as 0x9B 0x0p 0x0q.
       post_raw(sched, dev, delay2_ms, [0x9B, 0x01, 0x06]);
@@ -177,13 +177,13 @@ const send_postamble = (sched, dev) => {
 
 const configure_pmidipd30 = (dev, ks, fs, bs, bt) => {
   const sched = create_scheduler();
-  sched.add(0, () => { set_status("Transmitting Preamble..."); });
+  sched.add(0, () => set_status("Transmitting Preamble..."));
   send_preamble(sched, dev);
   for (let i = 0; i < 4; ++i) {
-    sched.add(0, () => { set_status("Transmitting Bank " + (i + 1) + "..."); });
+    sched.add(0, () => set_status("Transmitting Bank " + (i + 1) + "..."));
     send_scene(sched, dev, i, ks, fs, bs, bt);
   }
-  sched.add(0, () => { set_status("Transmitting Postamble..."); });
+  sched.add(0, () => set_status("Transmitting Postamble..."));
   send_postamble(sched, dev);
   sched.execute(
       () => {
@@ -199,7 +199,9 @@ const configure_pmidipd30 = (dev, ks, fs, bs, bt) => {
 const find_device_by_name = (ports, name) => {
   for (const entry of ports) {
     const port = entry[1];
-    if (port.name === name) return port;
+    if (port.name === name) {
+      return port;
+    }
   }
 }
 
