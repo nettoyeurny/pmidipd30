@@ -19,10 +19,10 @@ class PMIDIPD30(SimpleControllerBase):
     self._register_trigger(self.song.set_or_delete_cue, 49)
     # Set up crossfader.
     self._register_slider(self.__set_crossfader, 9)
-    self._register_trigger(partial(self.__set_crossfader, 0), 1)
-    self._register_trigger(partial(self.__set_crossfader, 127), 2)
+    self._register_trigger(partial(self.__set_crossfader, 0), 67)
+    self._register_trigger(partial(self.__set_crossfader, 127), 64)
     # Live 10 capture functionality.
-    self._register_trigger(self.song.capture_midi, 67)
+    self._register_trigger(self.song.capture_midi, 1)
     # Set up a property listener, just because we can.
     self._register_listener(self.__log_play_state, self.song, 'is_playing')
 
